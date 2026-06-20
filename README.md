@@ -79,6 +79,57 @@ shows the same effect: the baseline answers one facet, Moment RAG covers both.
 
 ---
 
+## Vector storage — NumPy index vs. ChromaDB
+
+The pipelines retrieve from an in-memory **NumPy** matrix (an exact brute-force cosine index). The
+notebook's **appendix** additionally stores the same Part 1 embeddings in **ChromaDB** — a real
+vector database — and serves retrieval from it via `baseline_rag_chroma()`, proving the pipeline
+works against a production-style store, not just an in-process array.
+
+### How ChromaDB is used
+
+```python
+import chromadb
+
+chroma = chromadb.EphemeralClient()                       # in-memory; PersistentClient(path="data/chroma") to persist
+try: chroma.delete_collection("baseline_chunks")          # idempotent on re-run
+except Exception: pass
+collection = chroma.create_collection(
+    "baseline_chunks", metadata={"hnsw:space": "cosine"},  # cosine-distance HNSW index
+)
+
+collection.add(                                            # reuse Part 1 embeddings -> no extra API cost
+    ids=[c["chunk_id"] for c in base_chunks],
+    embeddings=base_matrix.tolist(),
+    documents=[c["text"] for c in base_chunks],
+    metadatas=[{"start_ms": c["start_ms"], "start": fmt_ts(c["start_ms"])} for c in base_chunks],
+)
+
+res = collection.query(query_embeddings=[qv], n_results=4) # ANN retrieval -> documents + distances
+```
+
+### Why ChromaDB (and why NumPy stays the default)
+
+- **Covers both options of the brief.** The task says store embeddings in a *vector database **or**
+  similarity index*. NumPy satisfies the similarity-index option; ChromaDB satisfies the
+  vector-database option literally — so the project demonstrates both.
+- **What a vector DB adds.** An **HNSW** approximate-nearest-neighbor index (sub-linear search vs.
+  NumPy scanning every vector), on-disk **persistence**, metadata storage, and filtering — the things
+  that matter once you outgrow one short transcript.
+- **Why ChromaDB specifically.** Zero-config, pure-`pip` install, runs **embedded in-process** (no
+  server to stand up), and a tiny `add`/`query` API — the lightest real vector DB to show the concept
+  in a notebook. Swapping in Qdrant or Pinecone is the same shape.
+- **Why NumPy is still the default.** On a 9–39 vector corpus, brute-force cosine is *exact*, instant,
+  and fully transparent. ChromaDB returns the **same top result** here — distance `0.268` ↔ cosine
+  `0.732`, matching the NumPy score — so it validates the baseline rather than changing it.
+- **No extra cost.** Indexing reuses the embeddings already in `base_matrix`; only the query embedding
+  is computed at search time.
+
+> Chroma reports a **distance** (`cosine distance = 1 − cosine similarity`), so *lower = closer* —
+> compare it to the cosine *scores* the NumPy baseline prints.
+
+---
+
 ## Setup & run
 
 Requires **Python 3.12** (some ML wheels — torch, onnxruntime — don't yet ship 3.14 builds).
@@ -121,10 +172,8 @@ re-fetches the transcript on first run.
 
 ## Design notes
 
-- **NumPy vs. a vector database.** For one video (9–39 vectors) an exact brute-force cosine search
-  is simpler, exact, and fully transparent. The ChromaDB appendix shows the production path: an
-  HNSW (approximate-nearest-neighbor) index that scales to millions of vectors and persists to disk.
-  On this corpus both return identical results.
+- **NumPy vs. a vector database.** See *[Vector storage — NumPy index vs. ChromaDB](#vector-storage--numpy-index-vs-chromadb)*
+  above: brute-force cosine for transparency on a tiny corpus, with ChromaDB (HNSW) as the production path.
 - **HyDE lives at ingestion.** Each moment is pre-tagged with the questions it answers, embedded as a
   separate retrieval branch — so a user's question can match a stored *question*, keeping query-time
   latency low. This mirrors the reference codebase.
