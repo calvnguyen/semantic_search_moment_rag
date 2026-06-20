@@ -1262,6 +1262,21 @@
       .ex-k { font-family: var(--f-mono); font-size: var(--sz-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-fg-3); }
       .ex-v { font-family: var(--f-body); font-size: var(--sz-body); color: var(--c-fg); line-height: 1.5; }
       .ex-v.accent { color: var(--c-accent); font-family: var(--f-mono); }
+      /* branching architecture diagram */
+      .arch { display: flex; align-items: center; justify-content: center; gap: 1.6vw; width: 100%; }
+      .arch-col { display: flex; flex-direction: column; gap: 1.4vh; align-items: stretch; }
+      .arch-col.center { align-items: center; }
+      .archbox { background: var(--c-bg-alt); border: 1px solid var(--c-border); border-left: 3px solid var(--c-accent);
+        padding: 1.5vh 1.2vw; font-family: var(--f-body); font-size: var(--sz-body); color: var(--c-fg); line-height: 1.25;
+        min-width: 11vw; }
+      .archbox .sub { display: block; font-family: var(--f-mono); font-size: var(--sz-caption); color: var(--c-accent);
+        margin-top: 0.5vh; letter-spacing: 0.05em; }
+      .archbox.solid { border-color: var(--c-accent); background: color-mix(in srgb, var(--c-accent) 16%, var(--c-bg-alt)); }
+      .arch-arrow { font-size: 2.1vw; color: var(--c-accent); display: flex; align-items: center; }
+      .arch-arrow.v { font-size: 1.5vw; }
+      /* bump dense-layout body text so slides like 8/9 match the rest */
+      .dense-col p { font-size: 1.2vw !important; line-height: 1.62 !important; }
+      .dense-col h4 { font-size: 0.8vw; }
 
     </style>
   </head>
@@ -1314,7 +1329,7 @@
             <p>Run shared queries through both and judge recall, coverage, grounding, and explainability.</p>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Assignment objective</span><span class="label muted">03 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Assignment objective</span><span class="label muted">03 / 25</span></div>
       </section>
 
       <!-- 4 SPLIT: selected video + why -->
@@ -1341,7 +1356,7 @@
             <p class="img-caption" style="color:var(--c-fg-3)">youtube.com/watch?v=gl1r1XV0SLw</p>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Reason for selection</span><span class="label muted">04 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Reason for selection</span><span class="label muted">04 / 25</span></div>
       </section>
 
       <!-- 5 STATS: dataset -->
@@ -1358,7 +1373,7 @@
             <div class="stat-card"><div class="stat-value">1536</div><div class="stat-label">embedding dimensions</div><div class="stat-note">text-embedding-3-small</div></div>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Measured on this corpus</span><span class="label muted">05 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Measured on this corpus</span><span class="label muted">05 / 25</span></div>
       </section>
 
       <!-- 6 CHAPTER 02 -->
@@ -1386,7 +1401,7 @@
             <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">GPT Answer</div><div class="flow-desc">gpt-4o-mini answers from retrieved context.</div></div>
           </div>
         </div>
-        <footer class="slide-foot"><span class="label muted">baseline_rag()</span><span class="label muted">07 / 24</span></footer>
+        <footer class="slide-foot"><span class="label muted">baseline_rag()</span><span class="label muted">07 / 25</span></footer>
       </section>
 
       <!-- 8 DENSE: baseline implementation -->
@@ -1408,7 +1423,7 @@
             <p>6 · Generate the answer with <em>gpt-4o-mini</em>.</p>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Single retrieval signal</span><span class="label muted">08 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Single retrieval signal</span><span class="label muted">08 / 25</span></div>
       </section>
 
       <!-- 9 DENSE: baseline limitations -->
@@ -1428,7 +1443,7 @@
             <p>One lookup decides everything; multi-part questions get under-answered.</p>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">The gap Moment RAG closes</span><span class="label muted">09 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">The gap Moment RAG closes</span><span class="label muted">09 / 25</span></div>
       </section>
 
       <!-- 10 CHAPTER 03 -->
@@ -1456,7 +1471,7 @@
             <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Index</div><div class="flow-desc">Text + question embeddings + BM25.</div></div>
           </div>
         </div>
-        <footer class="slide-foot"><span class="label muted">segment_moments() · enrich_moment()</span><span class="label muted">11 / 24</span></footer>
+        <footer class="slide-foot"><span class="label muted">segment_moments() · enrich_moment()</span><span class="label muted">11 / 25</span></footer>
       </section>
 
       <!-- 12 DIAGRAM: query pipeline -->
@@ -1475,7 +1490,7 @@
             <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Ground</div><div class="flow-desc">Cited answer with timestamp deep-links.</div></div>
           </div>
         </div>
-        <footer class="slide-foot"><span class="label muted">moment_rag()</span><span class="label muted">12 / 24</span></footer>
+        <footer class="slide-foot"><span class="label muted">moment_rag()</span><span class="label muted">12 / 25</span></footer>
       </section>
 
       <!-- 13 SPLIT: step 1 segmentation -->
@@ -1500,7 +1515,7 @@
             </div>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">segment_moments()</span><span class="label muted">13 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">segment_moments()</span><span class="label muted">13 / 25</span></div>
       </section>
 
       <!-- 14 SPLIT: step 2 enrichment -->
@@ -1527,7 +1542,7 @@
             </div>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">enrich_moment()</span><span class="label muted">14 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">enrich_moment()</span><span class="label muted">14 / 25</span></div>
       </section>
 
       <!-- 15 LIST: step 3 hybrid retrieval -->
@@ -1546,7 +1561,7 @@
             <li><span><em>BM25</em> — keyword matching &rarr; captures <strong style="color:var(--c-accent)">exact terms &amp; acronyms</strong></span></li>
           </ul>
         </div>
-        <div class="slide-foot"><span class="label muted">Dense · Question · Sparse</span><span class="label muted">15 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Dense · Question · Sparse</span><span class="label muted">15 / 25</span></div>
       </section>
 
       <!-- 16 DENSE: step 4 decomposition -->
@@ -1567,7 +1582,7 @@
             <p>&rarr; What techniques make search fast?</p>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">decompose()</span><span class="label muted">16 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">decompose()</span><span class="label muted">16 / 25</span></div>
       </section>
 
       <!-- 17 DENSE: steps 5 & 6 fusion + rerank -->
@@ -1587,7 +1602,7 @@
             <p>Re-scores candidates against the original query. Embeddings are fast but approximate; the cross-encoder is <em>slower but more accurate</em>.</p>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">rrf_fuse() · rerank()</span><span class="label muted">17 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">rrf_fuse() · rerank()</span><span class="label muted">17 / 25</span></div>
       </section>
 
       <!-- 18 SPLIT: step 7 grounded answers -->
@@ -1612,7 +1627,36 @@
             </div>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Grounded &amp; explainable</span><span class="label muted">18 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Grounded &amp; explainable</span><span class="label muted">18 / 25</span></div>
+      </section>
+
+      <!-- 12b ARCHITECTURE: branching retrieval -->
+      <section class="slide dark slide--diagram">
+        <aside class="notes">The retrieval architecture as a branching diagram. After decomposition, each sub-query fans out into three parallel retrieval branches — dense text, dense questions, and BM25. Their rankings merge through RRF fusion, then a cross-encoder re-ranks the shortlist, producing the final cited answer. This is the "hybrid" step drawn as a system, showing the fan-out and merge a linear flow hides.</aside>
+        <div class="slide-chrome"><span class="label muted">Moment RAG · Retrieval Architecture</span><span class="label muted">19</span></div>
+        <div class="slide-body" style="display:flex;flex-direction:column;justify-content:center;gap:var(--gap-lg);">
+          <h2 class="h2" data-anim="fade-up" data-delay="0">Three signals fan out, then <em>merge</em></h2>
+          <div class="arch" data-anim="fade-up" data-delay="1">
+            <div class="arch-col center">
+              <div class="archbox">Query<span class="sub">decompose &rarr; 2–4 sub-queries</span></div>
+            </div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-col">
+              <div class="archbox">Dense text<span class="sub">meaning</span></div>
+              <div class="archbox">Dense questions<span class="sub">intent</span></div>
+              <div class="archbox">BM25<span class="sub">keywords &amp; acronyms</span></div>
+            </div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-col center">
+              <div class="archbox">RRF fusion</div>
+              <div class="arch-arrow v">&darr;</div>
+              <div class="archbox">Cross-encoder re-rank</div>
+              <div class="arch-arrow v">&darr;</div>
+              <div class="archbox solid">Cited answer + timestamps</div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="label muted">Hybrid retrieval &middot; RRF &middot; rerank</span><span class="label muted">19 / 25</span></div>
       </section>
 
       <!-- 19 CHAPTER 04 -->
@@ -1627,7 +1671,7 @@
       <!-- 20 COMPARE: results example -->
       <section class="slide dark slide--compare">
         <aside class="notes">Results on the query "What is an embedding?". The baseline failed to retrieve the complete explanation and could not define the term. Moment RAG retrieved the correct semantic moment and produced an accurate, cited answer.</aside>
-        <div class="slide-chrome"><span class="label muted">Results · &ldquo;What is an embedding?&rdquo;</span><span class="label muted">20</span></div>
+        <div class="slide-chrome"><span class="label muted">Results · &ldquo;What is an embedding?&rdquo;</span><span class="label muted">21</span></div>
         <div class="slide-body">
           <div class="compare-panel left" data-anim="fade-up" data-delay="1">
             <div class="compare-label">Baseline — failed</div>
@@ -1642,13 +1686,13 @@
             <ul class="bullet-list" style="font-size: var(--sz-body)"><li><span>Retrieved the right moment + timestamp citations</span></li></ul>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Same transcript · same models</span><span class="label muted">20 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Same transcript · same models</span><span class="label muted">21 / 25</span></div>
       </section>
 
       <!-- 21 COMPARE: comparison table -->
       <section class="slide dark slide--compare">
         <aside class="notes">The comparison table. Baseline: fixed chunks, dense retrieval only, single query, cosine ranking. Moment RAG: semantic moments, three retrieval signals, query decomposition, RRF fusion, cross-encoder re-ranking, and timestamp citations.</aside>
-        <div class="slide-chrome"><span class="label muted">Comparison</span><span class="label muted">21</span></div>
+        <div class="slide-chrome"><span class="label muted">Comparison</span><span class="label muted">22</span></div>
         <div class="slide-body">
           <div class="compare-panel left" data-anim="fade-up" data-delay="1">
             <div class="compare-label">Baseline</div>
@@ -1670,13 +1714,13 @@
             </ul>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Chunk-based vs. moment-based</span><span class="label muted">21 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Chunk-based vs. moment-based</span><span class="label muted">22 / 25</span></div>
       </section>
 
       <!-- 22 LIST: key findings -->
       <section class="slide dark slide--list">
         <aside class="notes">Key findings. Moment RAG improved recall, multi-part question coverage, overall retrieval quality, grounding, and explainability — all from how retrieval is structured rather than from a larger model.</aside>
-        <div class="slide-chrome"><span class="label muted">Key Findings</span><span class="label muted">22</span></div>
+        <div class="slide-chrome"><span class="label muted">Key Findings</span><span class="label muted">23</span></div>
         <div class="slide-body">
           <div class="list-head" data-anim="fade-up" data-delay="1">
             <div class="kicker">Key Findings</div>
@@ -1691,13 +1735,13 @@
             <li><span><em>Explainability</em> — you can see why each moment was chosen</span></li>
           </ul>
         </div>
-        <div class="slide-foot"><span class="label muted">Outcome</span><span class="label muted">22 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Outcome</span><span class="label muted">23 / 25</span></div>
       </section>
 
       <!-- 23 DENSE: limitations + future -->
       <section class="slide dark slide--dense">
         <aside class="notes">Limitations: a small transcript dataset, the cost of GPT enrichment, and added retrieval latency. Future improvements: replace the NumPy search with ChromaDB or Qdrant, use a larger evaluation dataset, add automated metrics like Recall@K, Precision@K, and MRR, and improve semantic segmentation.</aside>
-        <div class="slide-chrome"><span class="label muted">Honest Assessment</span><span class="label muted">23</span></div>
+        <div class="slide-chrome"><span class="label muted">Honest Assessment</span><span class="label muted">24</span></div>
         <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Limitations &amp; <em>future work</em>.</h2>
         <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
           <div class="dense-col">
@@ -1713,7 +1757,7 @@
             <p>Better semantic segmentation.</p>
           </div>
         </div>
-        <div class="slide-foot"><span class="label muted">Next steps</span><span class="label muted">23 / 24</span></div>
+        <div class="slide-foot"><span class="label muted">Next steps</span><span class="label muted">24 / 25</span></div>
       </section>
 
       <!-- 24 END -->
