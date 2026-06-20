@@ -7,5 +7,7 @@ __pycache__/
 *.pyc
 
 # cached data / model artifacts
-data/
+# (transcript.json is committed so the notebook works on Colab — YouTube blocks Colab IPs)
+data/*
+!data/transcript.json
 .ipynb_checkpoints/

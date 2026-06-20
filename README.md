@@ -1,7 +1,12 @@
 # Semantic Search RAG vs. Moment RAG
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/calvnguyen/semantic_search_moment_rag/blob/main/moment_rag.ipynb)
+
 Two retrieval-augmented-generation pipelines built over the transcript of a single YouTube video,
 then compared. Everything lives in one runnable notebook: **[`moment_rag.ipynb`](moment_rag.ipynb)**.
+
+**Run it instantly:** click the **Open in Colab** badge → *Runtime → Run all*. The first cell
+installs dependencies, pulls the cached transcript, and prompts for your `OPENAI_API_KEY`.
 
 - **Part 1 — Baseline semantic-search RAG:** fixed-size token chunks → embeddings → cosine top-k → answer.
 - **Part 2 — Moment RAG:** semantically-segmented **moments** with timestamps → ingestion enrichment

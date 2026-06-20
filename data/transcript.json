@@ -1,0 +1,547 @@
+[
+  {
+    "start_ms": 30,
+    "end_ms": 1789,
+    "text": "What is a vector database?"
+  },
+  {
+    "start_ms": 2029,
+    "end_ms": 3889,
+    "text": "Well, they say a picture is worth a thousand words."
+  },
+  {
+    "start_ms": 4450,
+    "end_ms": 5669,
+    "text": "So let's start with one."
+  },
+  {
+    "start_ms": 6170,
+    "end_ms": 11710,
+    "text": "Now in case you can't tell, this is a picture of a sunset on a mountain vista."
+  },
+  {
+    "start_ms": 12530,
+    "end_ms": 13530,
+    "text": "Beautiful."
+  },
+  {
+    "start_ms": 13650,
+    "end_ms": 17789,
+    "text": "Now let's say this is a digital image and we want to store it."
+  },
+  {
+    "start_ms": 18050,
+    "end_ms": 29039,
+    "text": "We want to put it into a database and we're going to use a traditional database here called a relational database."
+  },
+  {
+    "start_ms": 29220,
+    "end_ms": 33739,
+    "text": "Now what can we store in that relational database of this picture?"
+  },
+  {
+    "start_ms": 34120,
+    "end_ms": 41111,
+    "text": "Well we can put the actual picture binary data into our database to start with,"
+  },
+  {
+    "start_ms": 41111,
+    "end_ms": 45718,
+    "text": "so this is the actual image file but we can also store some other information as well"
+  },
+  {
+    "start_ms": 45719,
+    "end_ms": 50219,
+    "text": "like some basic metadata about the picture so that would be."
+  },
+  {
+    "start_ms": 50570,
+    "end_ms": 55130,
+    "text": "things like the file format and the date that it was created, stuff like that."
+  },
+  {
+    "start_ms": 55570,
+    "end_ms": 61009,
+    "text": "And we can also add some manually added tags to this as well."
+  },
+  {
+    "start_ms": 61030,
+    "end_ms": 67109,
+    "text": "So we could say, let's have tags for sunset and landscape and orange,"
+  },
+  {
+    "start_ms": 67870,
+    "end_ms": 72370,
+    "text": "and that sort of gives us a basic way to be able to retrieve this image,"
+  },
+  {
+    "start_ms": 72530,
+    "end_ms": 77449,
+    "text": "but it kind of largely misses the images overall semantic context."
+  },
+  {
+    "start_ms": 77530,
+    "end_ms": 83107,
+    "text": "Like how would you query for images with similar color palettes for example using this information"
+  },
+  {
+    "start_ms": 83107,
+    "end_ms": 88050,
+    "text": "or images with landscapes of mountains in the background for example."
+  },
+  {
+    "start_ms": 88510,
+    "end_ms": 94271,
+    "text": "Those concepts aren't really represented very well in these structured fields"
+  },
+  {
+    "start_ms": 94271,
+    "end_ms": 101170,
+    "text": "and that disconnect between how computers store data how humans understand it has a name."
+  },
+  {
+    "start_ms": 101470,
+    "end_ms": 105454,
+    "text": "It's called the semantic gap."
+  },
+  {
+    "start_ms": 105454,
+    "end_ms": 112902,
+    "text": "Now traditional database queries like select star where color equals orange,"
+  },
+  {
+    "start_ms": 112903,
+    "end_ms": 120099,
+    "text": "it kind of falls short because it doesn't really capture the nuanced multi-dimensional nature of unstructured data."
+  },
+  {
+    "start_ms": 120740,
+    "end_ms": 131620,
+    "text": "Well, that's where vector databases come in by representing data as mathematical vector embeddings."
+  },
+  {
+    "start_ms": 131620,
+    "end_ms": 134840,
+    "text": "and what vector embeddings are,"
+  },
+  {
+    "start_ms": 136130,
+    "end_ms": 138689,
+    "text": "it's essentially an array of numbers."
+  },
+  {
+    "start_ms": 139410,
+    "end_ms": 143816,
+    "text": "Now these vectors, they capture the semantic essence of the data where"
+  },
+  {
+    "start_ms": 143816,
+    "end_ms": 150029,
+    "text": "similar items are positioned close together in vector space and dissimilar items are positioned far apart,"
+  },
+  {
+    "start_ms": 150370,
+    "end_ms": 156294,
+    "text": "and with vector databases, we can perform similarity searches as mathematical operations,"
+  },
+  {
+    "start_ms": 156294,
+    "end_ms": 159110,
+    "text": "looking for vector embeddings that are close to each other,"
+  },
+  {
+    "start_ms": 159310,
+    "end_ms": 163410,
+    "text": "and that kind of translates to finding semantically similar content."
+  },
+  {
+    "start_ms": 163410,
+    "end_ms": 165149,
+    "text": "Now we can represent"
+  },
+  {
+    "start_ms": 165440,
+    "end_ms": 169559,
+    "text": "all sorts of unstructured data in a vector database."
+  },
+  {
+    "start_ms": 169860,
+    "end_ms": 170860,
+    "text": "What could we put in here?"
+  },
+  {
+    "start_ms": 171340,
+    "end_ms": 175940,
+    "text": "Well image files of course like our mountain sunset."
+  },
+  {
+    "start_ms": 176040,
+    "end_ms": 184659,
+    "text": "We could put in a text file as well or we could even store audio files as well in here."
+  },
+  {
+    "start_ms": 184880,
+    "end_ms": 194720,
+    "text": "Well this is unstructured data and these complex objects They are actually transformed into vector embeddings,"
+  },
+  {
+    "start_ms": 195410,
+    "end_ms": 200869,
+    "text": "and those vector embeddings are then stored in the vector database."
+  },
+  {
+    "start_ms": 201490,
+    "end_ms": 204789,
+    "text": "So what do these vector embeddings look like?"
+  },
+  {
+    "start_ms": 204830,
+    "end_ms": 207210,
+    "text": "Well, I said there are arrays of numbers"
+  },
+  {
+    "start_ms": 207210,
+    "end_ms": 211550,
+    "text": "and there are arrays of numbers where each position represents some kind of learned feature."
+  },
+  {
+    "start_ms": 211770,
+    "end_ms": 214330,
+    "text": "So let's take a simplified example."
+  },
+  {
+    "start_ms": 215050,
+    "end_ms": 217949,
+    "text": "So remember our mountain picture here?"
+  },
+  {
+    "start_ms": 218190,
+    "end_ms": 221829,
+    "text": "Yep, we can represent that as a vector embedding."
+  },
+  {
+    "start_ms": 222440,
+    "end_ms": 230517,
+    "text": "Now, let's say that the vector embedding for the mountain has a first dimension of say 0.91,"
+  },
+  {
+    "start_ms": 230517,
+    "end_ms": 238659,
+    "text": "then let's say the next one is 0.15, and then there's a third dimension of 0.83 and kind of so forth."
+  },
+  {
+    "start_ms": 239240,
+    "end_ms": 240240,
+    "text": "What does all that mean?"
+  },
+  {
+    "start_ms": 240620,
+    "end_ms": 250380,
+    "text": "Well, the 0.91 in the first dimension, that indicates significant elevation changes because, hey, this is the mountains."
+  },
+  {
+    "start_ms": 250380,
+    "end_ms": 256128,
+    "text": "Then 0.15 The second dimension here, that shows few urban elements,"
+  },
+  {
+    "start_ms": 256128,
+    "end_ms": 259889,
+    "text": "don't see many buildings here, so that's why that score is quite low."
+  },
+  {
+    "start_ms": 260350,
+    "end_ms": 266970,
+    "text": "0.83 in the third dimension, that represents strong warm colors like a sunset and so on."
+  },
+  {
+    "start_ms": 267370,
+    "end_ms": 269610,
+    "text": "All sorts of other dimensions can be added as well."
+  },
+  {
+    "start_ms": 270210,
+    "end_ms": 272888,
+    "text": "Now we could compare that to a different picture."
+  },
+  {
+    "start_ms": 273350,
+    "end_ms": 276950,
+    "text": "What about this one, which is a sunset at the beach?"
+  },
+  {
+    "start_ms": 277510,
+    "end_ms": 282289,
+    "text": "So let's have a look at the vector embeddings for the beach example."
+  },
+  {
+    "start_ms": 283010,
+    "end_ms": 286129,
+    "text": "So this would also have a series of dimensions."
+  },
+  {
+    "start_ms": 286530,
+    "end_ms": 298888,
+    "text": "Let's say the first one is 0.12, then we have a 0.08, and then finally we have a 0.89 and then more dimensions to follow."
+  },
+  {
+    "start_ms": 299870,
+    "end_ms": 302750,
+    "text": "Now, notice how there are some similarities here."
+  },
+  {
+    "start_ms": 302890,
+    "end_ms": 309469,
+    "text": "The third dimension, 0.83 and 0.89, pretty similar."
+  },
+  {
+    "start_ms": 309790,
+    "end_ms": 311589,
+    "text": "That's because they both have warm colors."
+  },
+  {
+    "start_ms": 311590,
+    "end_ms": 313709,
+    "text": "They're both pictures of sunsets,"
+  },
+  {
+    "start_ms": 314070,
+    "end_ms": 318769,
+    "text": "but the first dimension that differs quite a lot here"
+  },
+  {
+    "start_ms": 318769,
+    "end_ms": 323470,
+    "text": "because a beach has minimal elevation changes compared to the mountains."
+  },
+  {
+    "start_ms": 324150,
+    "end_ms": 326390,
+    "text": "Now this is a very simplified example."
+  },
+  {
+    "start_ms": 326810,
+    "end_ms": 333699,
+    "text": "In real machine learning systems vector embeddings typically contain hundreds or even thousands of dimensions"
+  },
+  {
+    "start_ms": 333699,
+    "end_ms": 337898,
+    "text": "and I should also say that individual dimensions like this they rarely correspond"
+  },
+  {
+    "start_ms": 337898,
+    "end_ms": 342110,
+    "text": "to such clearly interpretable features, but you get the idea."
+  },
+  {
+    "start_ms": 342680,
+    "end_ms": 347640,
+    "text": "And this all brings up the question of how are these vector embeddings actually created?"
+  },
+  {
+    "start_ms": 348180,
+    "end_ms": 353519,
+    "text": "Well, the answer is through embedding models that have been trained on massive data sets."
+  },
+  {
+    "start_ms": 353780,
+    "end_ms": 362260,
+    "text": "So each type of data has its own specialized type of embedding model that we can use."
+  },
+  {
+    "start_ms": 362540,
+    "end_ms": 365619,
+    "text": "So I'm gonna give you some examples of those."
+  },
+  {
+    "start_ms": 366040,
+    "end_ms": 367220,
+    "text": "For example, Clip."
+  },
+  {
+    "start_ms": 367800,
+    "end_ms": 370300,
+    "text": "You might use Clip for images."
+  },
+  {
+    "start_ms": 370848,
+    "end_ms": 381209,
+    "text": "if you're working with text, you might use GloVe, and if you're working with audio, you might use Wav2vec"
+  },
+  {
+    "start_ms": 381928,
+    "end_ms": 385290,
+    "text": "These processes are all kind of pretty similar."
+  },
+  {
+    "start_ms": 385490,
+    "end_ms": 389970,
+    "text": "Basically, you have data that passes through multiple layers."
+  },
+  {
+    "start_ms": 390650,
+    "end_ms": 398688,
+    "text": "And as it goes through the layers of the embedding model, each layer is extracting progressively more abstract features."
+  },
+  {
+    "start_ms": 398910,
+    "end_ms": 405509,
+    "text": "So for images, the early layers might detect some pretty basic stuff, like let's say edges,"
+  },
+  {
+    "start_ms": 405910,
+    "end_ms": 412509,
+    "text": "and then as we get to deeper layers, we would recognize more complex stuff, like maybe entire objects."
+  },
+  {
+    "start_ms": 413330,
+    "end_ms": 421140,
+    "text": "perhaps for text these early layers would figure out the words that we're looking at, individual words,"
+  },
+  {
+    "start_ms": 421141,
+    "end_ms": 426869,
+    "text": "but then later deeper layers would be able to figure out context and meaning,"
+  },
+  {
+    "start_ms": 427550,
+    "end_ms": 435829,
+    "text": "and how this essentially works is we take the high dimensional vectors from this deeper layer here,"
+  },
+  {
+    "start_ms": 436030,
+    "end_ms": 439178,
+    "text": "and those high dimensional vectors often have hundreds"
+  },
+  {
+    "start_ms": 439178,
+    "end_ms": 445439,
+    "text": "or maybe even thousands of dimensions that capture the essential characteristics of the input."
+  },
+  {
+    "start_ms": 445840,
+    "end_ms": 447878,
+    "text": "Now we have vector embeddings created."
+  },
+  {
+    "start_ms": 448020,
+    "end_ms": 454364,
+    "text": "We can perform all sorts of powerful operations that just weren't possible with those traditional relational databases,"
+  },
+  {
+    "start_ms": 454364,
+    "end_ms": 457393,
+    "text": "things like similarity search, where we can find items"
+  },
+  {
+    "start_ms": 457394,
+    "end_ms": 462019,
+    "text": "that are similar to a query item by finding the closest vectors in the space."
+  },
+  {
+    "start_ms": 462620,
+    "end_ms": 470199,
+    "text": "But when you have millions of vectors in your database and those vectors are made up of hundred or maybe even"
+  },
+  {
+    "start_ms": 470760,
+    "end_ms": 473393,
+    "text": "thousands of dimensions,"
+  },
+  {
+    "start_ms": 473393,
+    "end_ms": 479979,
+    "text": "you can't effectively and efficiently compare your query vector to every single vector in the database."
+  },
+  {
+    "start_ms": 480060,
+    "end_ms": 481959,
+    "text": "It would just be too slow."
+  },
+  {
+    "start_ms": 482080,
+    "end_ms": 488558,
+    "text": "So there is a process to do that and it's called vector indexing."
+  },
+  {
+    "start_ms": 489180,
+    "end_ms": 496971,
+    "text": "Now this is where vector indexing uses something called approximate nearest neighbor or ANN algorithms"
+  },
+  {
+    "start_ms": 496971,
+    "end_ms": 500294,
+    "text": "and instead of finding the exact closest match"
+  },
+  {
+    "start_ms": 500294,
+    "end_ms": 506409,
+    "text": "these algorithms quickly find vectors that are very likely to be among the closest matches."
+  },
+  {
+    "start_ms": 506750,
+    "end_ms": 509309,
+    "text": "Now there are a bunch of approaches for this."
+  },
+  {
+    "start_ms": 509710,
+    "end_ms": 519249,
+    "text": "For example, HNSW, that is Hierarchical Navigable Small World that creates multi-layered graphs connecting similar vectors,"
+  },
+  {
+    "start_ms": 519610,
+    "end_ms": 521999,
+    "text": "and there's also IVF,"
+  },
+  {
+    "start_ms": 521999,
+    "end_ms": 529831,
+    "text": "that's Inverted File Index, which divides the vector space into clusters and only searches the most relevant of those clusters."
+  },
+  {
+    "start_ms": 530190,
+    "end_ms": 534010,
+    "text": "These indexing methods, they basically are trading a small amount of accuracy"
+  },
+  {
+    "start_ms": 534010,
+    "end_ms": 537390,
+    "text": "for pretty big improvements in search speed."
+  },
+  {
+    "start_ms": 537890,
+    "end_ms": 546502,
+    "text": "Now, vector databases are a core feature of something called RAG, retrieval  augmented generation,"
+  },
+  {
+    "start_ms": 546502,
+    "end_ms": 549561,
+    "text": "where vector databases store chunks of documents"
+  },
+  {
+    "start_ms": 549562,
+    "end_ms": 553462,
+    "text": "and articles and knowledge bases as embeddings and"
+  },
+  {
+    "start_ms": 553462,
+    "end_ms": 560199,
+    "text": "then when a user asks a question, the system finds the relevant text chunks by comparing vector similarity?"
+  },
+  {
+    "start_ms": 560530,
+    "end_ms": 566009,
+    "text": "and feeds those to a large language model to generate responses using the retrieved information."
+  },
+  {
+    "start_ms": 566510,
+    "end_ms": 568950,
+    "text": "So that's vector databases."
+  },
+  {
+    "start_ms": 569090,
+    "end_ms": 576350,
+    "text": "They are both a place to store unstructured data and a place to retrieve it quickly and semantically."
+  }
+]
