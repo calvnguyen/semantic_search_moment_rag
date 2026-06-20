@@ -1,8 +1,7 @@
 # Semantic Search RAG vs. Moment RAG
 
 Two retrieval-augmented-generation pipelines built over the transcript of a single YouTube video,
-then compared — the **Module 3 (Agentic RAG)** assignment. Everything lives in one runnable
-notebook: **[`moment_rag.ipynb`](moment_rag.ipynb)**.
+then compared. Everything lives in one runnable notebook: **[`moment_rag.ipynb`](moment_rag.ipynb)**.
 
 - **Part 1 — Baseline semantic-search RAG:** fixed-size token chunks → embeddings → cosine top-k → answer.
 - **Part 2 — Moment RAG:** semantically-segmented **moments** with timestamps → ingestion enrichment
@@ -25,7 +24,7 @@ step is readable in the notebook.
 
 A baseline RAG cuts the transcript into arbitrary fixed windows and does a single embedding lookup.
 Moment RAG moves the intelligence to the **query side** and makes retrieval land on coherent,
-timestamped *moments*. The contrast is the point of the assignment:
+timestamped *moments*. The contrast is the whole point:
 
 ```
 BASELINE                                  MOMENT RAG
@@ -44,11 +43,11 @@ gpt-4o-mini answer                        gpt-4o-mini cited answer  +  &t= times
 
 ---
 
-## How it maps to the assignment
+## What each pipeline does
 
 **Part 1 — baseline semantic-search RAG**
 
-| Requirement | How it's met | Key code |
+| Capability | How it works | Key code |
 |---|---|---|
 | Obtain the transcript from a YouTube video | `youtube-transcript-api` → 312 timed cues, cached to `data/transcript.json` | `fetch_transcript()` |
 | Split into chunks | ~256-token windows, 25% overlap | `fixed_chunks()` |
@@ -59,7 +58,7 @@ gpt-4o-mini answer                        gpt-4o-mini cited answer  +  &t= times
 
 **Part 2 — Moment RAG**
 
-| Requirement | How it's met | Key code |
+| Capability | How it works | Key code |
 |---|---|---|
 | Identify meaningful "moments" | semantic-breakpoint segmentation → 25 moments with real timestamps | `segment_moments()` |
 | Structure segments around moments | per-moment enrichment (hypothetical questions / gist / keywords); indexed by text + question vectors + BM25 | `enrich_moment()` |
@@ -110,7 +109,7 @@ requires a one-time **$5 minimum** account top-up to enable the API.
 
 | Path | Purpose |
 |---|---|
-| `moment_rag.ipynb` | The assignment — Parts 1–3 + ChromaDB appendix (run with outputs) |
+| `moment_rag.ipynb` | The project — Parts 1–3 + ChromaDB appendix (run with outputs) |
 | `requirements.txt` | Pinned dependencies |
 | `.env.example` | Template for your `OPENAI_API_KEY` |
 | `.gitignore` | Excludes `.env`, `.venv/`, and the cached `data/` |
