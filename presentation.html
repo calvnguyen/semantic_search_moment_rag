@@ -1274,9 +1274,13 @@
       .archbox.solid { border-color: var(--c-accent); background: color-mix(in srgb, var(--c-accent) 16%, var(--c-bg-alt)); }
       .arch-arrow { font-size: 2.1vw; color: var(--c-accent); display: flex; align-items: center; }
       .arch-arrow.v { font-size: 1.5vw; }
-      /* bump dense-layout body text so slides like 8/9 match the rest */
+      /* unify body/bullet text sizing across ALL slide types (dense, split,
+         compare, list) so nothing reads small relative to its neighbours */
       .dense-col p { font-size: 1.2vw !important; line-height: 1.62 !important; }
-      .dense-col h4 { font-size: 0.8vw; }
+      .dense-col h4 { font-size: 0.82vw; }
+      .bullet-list li { font-size: 1.2vw !important; line-height: 1.5; }
+      .body { font-size: 1.12vw; }
+      .ex-v { font-size: 1.1vw; }
 
     </style>
   </head>
