@@ -1,0 +1,11 @@
+# secrets
+.env
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# cached data / model artifacts
+data/
+.ipynb_checkpoints/

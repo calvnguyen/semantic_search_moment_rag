@@ -1,0 +1,9 @@
+youtube-transcript-api>=0.6.2
+openai>=1.40
+numpy>=1.26
+rank-bm25>=0.2.2
+sentence-transformers>=3.0     # small cross-encoder for the Moment-RAG re-rank stage
+tiktoken>=0.7
+python-dotenv>=1.0
+jupyter
+ipykernel
