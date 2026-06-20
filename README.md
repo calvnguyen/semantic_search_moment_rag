@@ -8,6 +8,10 @@ then compared. Everything lives in one runnable notebook: **[`moment_rag.ipynb`]
 **Run it instantly:** click the **Open in Colab** badge → *Runtime → Run all*. The first cell
 installs dependencies, pulls the cached transcript, and prompts for your `OPENAI_API_KEY`.
 
+**Slides:** a 25-slide walkthrough of the build and comparison is in
+[`presentation.pdf`](presentation.pdf) (open [`presentation.html`](presentation.html) to present;
+press **S** for speaker notes).
+
 - **Part 1 — Baseline semantic-search RAG:** fixed-size token chunks → embeddings → cosine top-k → answer.
 - **Part 2 — Moment RAG:** semantically-segmented **moments** with timestamps → ingestion enrichment
   (HyDE-style hypothetical questions, gist, keywords) → query **decomposition** → **hybrid** retrieval
@@ -166,12 +170,15 @@ requires a one-time **$5 minimum** account top-up to enable the API.
 | Path | Purpose |
 |---|---|
 | `moment_rag.ipynb` | The project — Parts 1–3 + ChromaDB appendix (run with outputs) |
+| `presentation.html` / `presentation.pdf` | 25-slide deck explaining the build & comparison (dark theme, speaker notes) |
+| `data/transcript.json` | Cached transcript, committed so the Colab demo runs without a live YouTube fetch |
 | `requirements.txt` | Pinned dependencies |
 | `.env.example` | Template for your `OPENAI_API_KEY` |
-| `.gitignore` | Excludes `.env`, `.venv/`, and the cached `data/` |
+| `.gitignore` | Excludes `.env`, `.venv/`, and `data/` (except the committed transcript) |
 
-`data/` (the cached transcript) and `.env` (your key) are **not** committed — the notebook
-re-fetches the transcript on first run.
+`.env` (your key) and the rest of `data/` are **not** committed. The cached `data/transcript.json`
+**is** committed so the Colab demo works even when YouTube blocks the runtime's IP; locally the
+notebook reuses it (or fetches live if it's absent).
 
 ---
 
