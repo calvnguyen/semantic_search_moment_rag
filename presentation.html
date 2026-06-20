@@ -1320,22 +1320,22 @@
         <div class="slide-body">
           <div class="split-text" data-anim="fade-up" data-delay="1">
             <div class="kicker">Why This Video</div>
-            <h2 class="h2">&ldquo;How does a Vector Database work?&rdquo;</h2>
+            <h2 class="h2">&ldquo;What is a Vector Database?&rdquo;</h2>
             <p class="lead" style="color: var(--c-fg-light-2)">
               It captures the exact shift this project is about: how vector databases transform traditional keyword-based search into <strong style="color: var(--c-fg-light)">semantic understanding that actually comprehends meaning</strong>, not just matching words.
             </p>
             <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>Its arc mirrors baseline &rarr; Moment RAG: SQL keyword lookup vs. meaning-based retrieval</li>
-              <li>Topic-dense — embeddings, similarity, indexing, thresholds, chunk overlap — each a distinct moment</li>
-              <li>Clean auto-captions &rarr; 312 timestamped cues; the system explains the very tech it runs on</li>
+              <li>Walks a concrete example — storing an image — from relational tables to vector embeddings</li>
+              <li>Topic-dense — embeddings, vector space, indexing, ANN, RAG — each a distinct moment</li>
+              <li>Clean auto-captions &rarr; 109 timestamped cues; the system explains the very tech it runs on</li>
             </ul>
           </div>
           <div class="split-image" data-anim="fade-in" data-delay="3" style="display: flex; flex-direction: column; gap: var(--gap-sm)">
             <div style="flex: 1; background: var(--c-bg-light-alt); border: 1px solid var(--c-border-light); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 28vh; gap: 1.4vh; padding: 2vh;">
-              <span style="font-family: var(--f-display); font-size: 2.1vw; color: var(--c-fg-light); text-align: center; line-height: 1.1;">&#9658;&nbsp; Vector Databases</span>
-              <span style="font-family: var(--f-mono); font-size: var(--sz-caption); color: var(--c-fg-light-3); letter-spacing: 0.08em;">312 cues · ~2,400 tokens</span>
+              <span style="font-family: var(--f-display); font-size: 1.9vw; color: var(--c-fg-light); text-align: center; line-height: 1.15;">&#9658;&nbsp; Powering Semantic<br />Search &amp; AI Apps</span>
+              <span style="font-family: var(--f-mono); font-size: var(--sz-caption); color: var(--c-fg-light-3); letter-spacing: 0.08em;">109 cues · ~1,500 tokens</span>
             </div>
-            <p class="img-caption" style="color: var(--c-fg-light-3)">youtube.com/watch?v=VVNYQKDLY5s</p>
+            <p class="img-caption" style="color: var(--c-fg-light-3)">youtube.com/watch?v=gl1r1XV0SLw</p>
           </div>
         </div>
         <div class="slide-foot">
@@ -1420,7 +1420,7 @@
         <div class="slide-body">
           <h2 class="h2" data-anim="fade-up" data-delay="0">Chunk &rarr; embed &rarr; index &rarr; <em>answer</em></h2>
           <div class="flow" data-anim="fade-up" data-delay="1">
-            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Chunk</div><div class="flow-desc">Cut the transcript into fixed ~256-token windows (25% overlap) &rarr; 13 chunks.</div></div>
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Chunk</div><div class="flow-desc">Cut the transcript into fixed ~256-token windows (25% overlap) &rarr; 9 chunks.</div></div>
             <div class="flow-arrow">&rarr;</div>
             <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Embed</div><div class="flow-desc">Turn each chunk into a vector with text-embedding-3-small.</div></div>
             <div class="flow-arrow">&rarr;</div>
@@ -1477,7 +1477,7 @@
         <div class="slide-body">
           <h2 class="h2" data-anim="fade-up" data-delay="0">Intelligence moves to the <em>query</em> side</h2>
           <div class="flow" data-anim="fade-up" data-delay="1">
-            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Segment &amp; Enrich</div><div class="flow-desc">Split at topic shifts &rarr; 25 timestamped moments; tag each with the questions it answers (99 Q-vectors).</div></div>
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Segment &amp; Enrich</div><div class="flow-desc">Split at topic shifts &rarr; 10 timestamped moments; tag each with the questions it answers (39 Q-vectors).</div></div>
             <div class="flow-arrow">&rarr;</div>
             <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Decompose</div><div class="flow-desc">Break one question into 2–4 focused sub-queries.</div></div>
             <div class="flow-arrow">&rarr;</div>
@@ -1529,7 +1529,7 @@
             <h3 class="h3">One lookup over arbitrary chunks</h3>
             <p class="lead" style="color: var(--c-fg-2)">Fast and simple, but only as good as a single similarity match.</p>
             <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>13 fixed chunks, boundaries set by token budget</li>
+              <li>9 fixed chunks, boundaries set by token budget</li>
               <li>Single embedding lookup per query</li>
               <li>No timestamps to cite; can miss the &ldquo;how&rdquo;</li>
             </ul>
@@ -1539,7 +1539,7 @@
             <h3 class="h3">Decompose, fuse, re-rank, cite</h3>
             <p class="lead" style="color: var(--c-fg-2)">More moving parts, but retrieval lands on the right moment.</p>
             <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>25 semantic moments aligned to topic shifts</li>
+              <li>10 semantic moments aligned to topic shifts</li>
               <li>Sub-queries + dense + BM25 + questions, RRF + rerank</li>
               <li>Every citation deep-links to the exact second</li>
             </ul>
@@ -1560,18 +1560,18 @@
         <div class="slide-body">
           <div class="compare-panel left" data-anim="fade-up" data-delay="1">
             <div class="compare-label">Baseline — failed</div>
-            <h3 class="h3">&ldquo;How does a vector database find similar vectors?&rdquo;</h3>
-            <p class="lead" style="color: var(--c-fg-2)">&ldquo;The context does not provide a specific answer to how a vector database finds similar vectors.&rdquo;</p>
+            <h3 class="h3">&ldquo;What is an embedding?&rdquo;</h3>
+            <p class="lead" style="color: var(--c-fg-2)">&ldquo;The context does not explicitly define what an embedding is.&rdquo;</p>
             <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>Retrieved chunks about vector DBs — but not the actual mechanism</li>
+              <li>A fixed chunk split the definition away from the cue that names it</li>
             </ul>
           </div>
           <div class="compare-panel right" data-anim="fade-up" data-delay="2">
             <div class="compare-label after">Moment RAG — answered</div>
-            <h3 class="h3">Cosine similarity, thresholds, chunk overlap</h3>
-            <p class="lead" style="color: var(--c-fg-2)">&ldquo;…uses techniques such as cosine similarity for semantic search… scoring thresholds decide how similar a match must be… [1][3]&rdquo;</p>
+            <h3 class="h3">&ldquo;An array of numbers that captures meaning&rdquo;</h3>
+            <p class="lead" style="color: var(--c-fg-2)">&ldquo;…an array of numbers that captures the semantic essence of data — similar items sit close together in vector space [4].&rdquo;</p>
             <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>6 citations, each a deep-link: 4:59, 8:10, 4:08, 1:04 …</li>
+              <li>6 citations, each a deep-link: 2:43, 3:24, 5:14 …</li>
             </ul>
           </div>
         </div>
@@ -1585,7 +1585,7 @@
       <section class="slide dark slide--quote">
         <div class="quote-mark" data-anim="fade-in" data-delay="0">&ldquo;</div>
         <p class="quote-text" data-anim="fade-up" data-delay="1">
-          The baseline said <span class="accent">&ldquo;the context does not provide an answer.&rdquo;</span> Moment RAG answered the same question — with <span class="accent">six timestamped citations.</span>
+          Asked <span class="accent">&ldquo;what is an embedding?&rdquo;</span> the baseline said <span class="accent">&ldquo;the context does not explicitly define&rdquo;</span> it. Moment RAG defined it precisely — with <span class="accent">six timestamped citations.</span>
         </p>
         <div class="quote-attr" data-anim="fade-up" data-delay="3">
           <span class="label accent">The difference is retrieval — not the model</span>
@@ -1603,12 +1603,12 @@
           <h2 class="h2" data-anim="fade-up" data-delay="1">One short video, measured both ways</h2>
           <div class="stats-grid" data-anim="fade-up" data-delay="2">
             <div class="stat-card">
-              <div class="stat-value">25</div>
-              <div class="stat-label">semantic moments vs. 13 fixed chunks from the same transcript</div>
+              <div class="stat-value">10</div>
+              <div class="stat-label">semantic moments vs. 9 fixed chunks from the same transcript</div>
               <div class="stat-note">segment_moments()</div>
             </div>
             <div class="stat-card">
-              <div class="stat-value">99</div>
+              <div class="stat-value">39</div>
               <div class="stat-label">hypothetical-question vectors added as a HyDE retrieval branch</div>
               <div class="stat-note">enrich_moment()</div>
             </div>

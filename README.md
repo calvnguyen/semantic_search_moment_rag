@@ -11,7 +11,7 @@ then compared. Everything lives in one runnable notebook: **[`moment_rag.ipynb`]
 - **Part 3 — Comparison & analysis.**
 - **Appendix — ChromaDB:** the same baseline backed by a real vector database (HNSW index).
 
-**Source video:** *How does a Vector Database work?* — https://www.youtube.com/watch?v=VVNYQKDLY5s
+**Source video:** *What is a Vector Database? Powering Semantic Search & AI Applications* — https://www.youtube.com/watch?v=gl1r1XV0SLw
 
 The Moment RAG design mirrors the course's `Moment_RAG/` reference codebase (query-side intelligence,
 HyDE-at-ingestion, RRF fusion, cross-encoder rerank, moment rollup) on a lighter, **fully transparent
@@ -49,9 +49,9 @@ gpt-4o-mini answer                        gpt-4o-mini cited answer  +  &t= times
 
 | Capability | How it works | Key code |
 |---|---|---|
-| Obtain the transcript from a YouTube video | `youtube-transcript-api` → 312 timed cues, cached to `data/transcript.json` | `fetch_transcript()` |
+| Obtain the transcript from a YouTube video | `youtube-transcript-api` → 109 timed cues, cached to `data/transcript.json` | `fetch_transcript()` |
 | Split into chunks | ~256-token windows, 25% overlap | `fixed_chunks()` |
-| Generate embeddings | OpenAI `text-embedding-3-small` → `(13, 1536)` matrix | `embed_texts()` |
+| Generate embeddings | OpenAI `text-embedding-3-small` → `(9, 1536)` matrix | `embed_texts()` |
 | Store in a vector DB / similarity index | In-memory NumPy cosine index **and** a real **ChromaDB** collection (Appendix) | `cosine_topk()`, `collection.add/query` |
 | Accept queries, retrieve relevant chunks | top-k cosine retrieval | `baseline_rag()`, `baseline_rag_chroma()` |
 | Generate an answer from context | context-grounded `gpt-4o-mini` synthesis | `baseline_rag()` |
@@ -60,7 +60,7 @@ gpt-4o-mini answer                        gpt-4o-mini cited answer  +  &t= times
 
 | Capability | How it works | Key code |
 |---|---|---|
-| Identify meaningful "moments" | semantic-breakpoint segmentation → 25 moments with real timestamps | `segment_moments()` |
+| Identify meaningful "moments" | semantic-breakpoint segmentation → 10 moments with real timestamps | `segment_moments()` |
 | Structure segments around moments | per-moment enrichment (hypothetical questions / gist / keywords); indexed by text + question vectors + BM25 | `enrich_moment()` |
 | Improve retrieval with moment-level context | decompose → dense + dense-questions + BM25 → RRF → cross-encoder rerank | `moment_retrieve()`, `rerank()`, `moment_rag()` |
 | Compare against the baseline | 3-query head-to-head + summary table | Part 3, `unit_summary()` |
@@ -70,12 +70,12 @@ gpt-4o-mini answer                        gpt-4o-mini cited answer  +  &t= times
 
 ## Headline result
 
-On *"How does a vector database find similar vectors?"* the **baseline failed** — *"The context does
-not provide a specific answer"* — because its single lookup retrieved chunks *about* vector DBs but
-not the *how*. **Moment RAG answered correctly** (cosine similarity, scoring thresholds, chunk
-overlap) with six timestamped citations, because query **decomposition** + **HyDE question-indexing**
-surfaced the right moments. The multi-faceted Q3 shows the same effect: the baseline answers one
-facet, Moment RAG covers both.
+On *"What is an embedding?"* the **baseline failed** — *"The context does not explicitly define what
+an embedding is"* — because its fixed chunks split the definition away from the cue that names it.
+**Moment RAG answered correctly** — *"an array of numbers that captures the semantic essence of data,
+where similar items sit close together in vector space"* — with six timestamped citations, because
+query **decomposition** + **HyDE question-indexing** surfaced the right moment. The multi-faceted Q3
+shows the same effect: the baseline answers one facet, Moment RAG covers both.
 
 ---
 
@@ -121,7 +121,7 @@ re-fetches the transcript on first run.
 
 ## Design notes
 
-- **NumPy vs. a vector database.** For one video (13–99 vectors) an exact brute-force cosine search
+- **NumPy vs. a vector database.** For one video (9–39 vectors) an exact brute-force cosine search
   is simpler, exact, and fully transparent. The ChromaDB appendix shows the production path: an
   HNSW (approximate-nearest-neighbor) index that scales to millions of vectors and persists to disk.
   On this corpus both return identical results.
