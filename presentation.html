@@ -1246,6 +1246,23 @@
         color: var(--c-fg-3);
         font-size: 1.3vw;
       }
+    
+      /* speaker notes */
+      .notes { display: none; }
+      #notes-panel { position: fixed; left: 0; right: 0; bottom: 0; max-height: 42vh; overflow: auto;
+        background: rgba(8,11,20,0.97); border-top: 1px solid var(--c-accent); padding: 20px 32px;
+        z-index: 200; font-family: var(--f-body); font-size: 15px; line-height: 1.55; color: #d6dae3; }
+      #notes-panel.hidden { display: none; }
+      #notes-hint { position: fixed; bottom: 20px; left: 28px; font-family: var(--f-mono); font-size: 10px;
+        letter-spacing: 0.12em; color: rgba(255,255,255,0.25); z-index: 100; }
+      @media print { #notes-hint, #notes-panel { display: none !important; } }
+      /* reusable example card on dark slides */
+      .ex-card { background: var(--c-bg-alt); border: 1px solid var(--c-border); border-left: 3px solid var(--c-accent);
+        padding: 2.2vh 1.8vw; display: flex; flex-direction: column; gap: 1.1vh; }
+      .ex-k { font-family: var(--f-mono); font-size: var(--sz-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-fg-3); }
+      .ex-v { font-family: var(--f-body); font-size: var(--sz-body); color: var(--c-fg); line-height: 1.5; }
+      .ex-v.accent { color: var(--c-accent); font-family: var(--f-mono); }
+
     </style>
   </head>
 
@@ -1256,12 +1273,13 @@
     <div id="deck">
       <!-- 1 COVER -->
       <section class="slide dark slide--cover">
+        <aside class="notes">Goal of this talk: explain how I implemented and compared a Baseline Semantic Search RAG against a Moment RAG system, both built over a single YouTube transcript. Press S any time to see these speaker notes. Use arrow keys or scroll to move between slides.</aside>
         <div class="cover-body">
-          <div class="label muted" data-anim="fade-in" data-delay="0">Module 3 · Agentic RAG · Technical Case Study</div>
+          <div class="label muted" data-anim="fade-in" data-delay="0">Module 3 · Agentic RAG · Engineering Deep-Dive</div>
           <div class="rule" data-anim="reveal-right" data-delay="1"></div>
           <h1 class="display" data-anim="fade-up" data-delay="2">Semantic Search RAG<br />vs. <em>Moment RAG</em></h1>
-          <p class="lead" style="font-family: var(--f-heading); max-width: 58%; color: var(--c-fg-2);" data-anim="fade-up" data-delay="3">
-            Two ways to answer questions about a YouTube video from its transcript — a simple semantic-search baseline, and a moment-aware system that decomposes, retrieves hybrid, re-ranks, and cites the exact second.
+          <p class="lead" style="font-family: var(--f-heading); max-width: 60%; color: var(--c-fg-2);" data-anim="fade-up" data-delay="3">
+            Implementing and comparing two retrieval-augmented generation systems over a YouTube transcript — chunk-based retrieval vs. moment-based retrieval.
           </p>
           <div class="cover-meta" data-anim="fade-in" data-delay="4">
             <span class="label muted">Calvin Nguyen</span>
@@ -1270,422 +1288,446 @@
         </div>
       </section>
 
-      <!-- 2 CHAPTER 00 -->
+      <!-- 2 CHAPTER 01 -->
       <section class="slide dark slide--chapter">
-        <div class="chapter-num" data-anim="fade-in" data-delay="0">00 · The Problem</div>
+        <aside class="notes">Section one: the project objective, the video I picked, why I picked it, and the dataset it produced.</aside>
+        <div class="chapter-num" data-anim="fade-in" data-delay="0">01 · Project Overview</div>
         <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
-        <h1 class="h1" style="max-width: 66%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">An LLM can&rsquo;t answer about a video it has <em>never seen</em>.</h1>
-        <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">RAG (Retrieval-Augmented Generation) fixes that: find the relevant pieces first, then let the model answer using them.</p>
+        <h1 class="h1" style="max-width: 64%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">Two systems, <em>one transcript</em>, one comparison.</h1>
+        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">Build a baseline and a moment-aware RAG over the same source, then measure retrieval quality.</p>
       </section>
 
-      <!-- 3 DENSE: RAG in plain terms -->
+      <!-- 3 DENSE: objective -->
       <section class="slide dark slide--dense">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">Background · Plain Terms</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">03</span>
-        </div>
-        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">RAG in one slide: <em>retrieve</em>, then <em>generate</em>.</h2>
+        <aside class="notes">Objective: build two RAG systems over a YouTube transcript and compare retrieval quality. The baseline is conventional chunk retrieval; Moment RAG is the moment-aware system. Everything runs in one notebook, no LangChain or LlamaIndex.</aside>
+        <div class="slide-chrome"><span class="label muted">Objective</span><span class="label muted">03</span></div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Build two RAG systems and <em>compare</em> them.</h2>
         <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
           <div class="dense-col">
-            <h4>The idea</h4>
-            <p>Turn every passage into an <em>embedding</em> — a list of numbers capturing its meaning. Similar meanings sit close together in that number space.</p>
-            <p>To answer a question, embed the question too, find the <em>closest</em> passages, and hand them to the LLM as context. The model answers from those, not from memory.</p>
+            <h4>What I built</h4>
+            <p><em>Baseline Semantic Search RAG</em> — fixed chunks, embeddings, cosine top-k, answer.</p>
+            <p><em>Moment RAG</em> — semantic moments, enrichment, hybrid retrieval, decomposition, fusion, re-ranking, cited answers.</p>
           </div>
           <div class="dense-col">
-            <h4>Why it beats keyword search</h4>
-            <p>Keyword search needs the <em>exact words</em>. &ldquo;Can I wear jeans?&rdquo; would miss a passage titled &ldquo;dress code.&rdquo;</p>
-            <p>Semantic (embedding) search matches on <em>meaning</em>, so the question and the answer connect even with zero shared words. That is the core move in every slide that follows.</p>
+            <h4>How I compare</h4>
+            <p>Same transcript, same models — only the <em>retrieval design</em> changes.</p>
+            <p>Run shared queries through both and judge recall, coverage, grounding, and explainability.</p>
           </div>
         </div>
-        <div class="slide-foot">
-          <span class="label muted">Retrieval-Augmented Generation</span>
-          <span class="label muted">03 / 21</span>
-        </div>
+        <div class="slide-foot"><span class="label muted">Assignment objective</span><span class="label muted">03 / 24</span></div>
       </section>
 
-      <!-- 4 CHAPTER 01 -->
-      <section class="slide dark slide--chapter">
-        <div class="chapter-num" data-anim="fade-in" data-delay="0">01 · The Source</div>
-        <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
-        <h1 class="h1" style="max-width: 64%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">The video chosen — and <em>why</em> it fits.</h1>
-        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">A short, dense explainer is a clean knowledge source: many distinct ideas packed into a few minutes, each a natural &ldquo;moment.&rdquo;</p>
-      </section>
-
-      <!-- 5 SPLIT: video + why -->
-      <section class="slide light slide--split">
-        <div class="slide-chrome">
-          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">Source · YouTube</span>
-          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">05</span>
-        </div>
+      <!-- 4 SPLIT: selected video + why -->
+      <section class="slide dark slide--split">
+        <aside class="notes">Selected video: "What is a Vector Database? Powering Semantic Search and AI Applications." Reasons: it is directly about RAG concepts, it explains embeddings and vector databases, it has multiple distinct topics that segment well, and it is a great example for contrasting chunk-based vs moment-based retrieval. Link: youtube.com/watch?v=gl1r1XV0SLw</aside>
+        <div class="slide-chrome"><span class="label muted">Source · YouTube</span><span class="label muted">04</span></div>
         <div class="slide-body">
           <div class="split-text" data-anim="fade-up" data-delay="1">
-            <div class="kicker">Why This Video</div>
+            <div class="kicker">Selected Video</div>
             <h2 class="h2">&ldquo;What is a Vector Database?&rdquo;</h2>
-            <p class="lead" style="color: var(--c-fg-light-2)">
-              It captures the exact shift this project is about: how vector databases transform traditional keyword-based search into <strong style="color: var(--c-fg-light)">semantic understanding that actually comprehends meaning</strong>, not just matching words.
-            </p>
+            <p class="lead" style="color: var(--c-fg-2)">Powering Semantic Search &amp; AI Applications.</p>
             <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>Walks a concrete example — storing an image — from relational tables to vector embeddings</li>
-              <li>Topic-dense — embeddings, vector space, indexing, ANN, RAG — each a distinct moment</li>
-              <li>Clean auto-captions &rarr; 109 timestamped cues; the system explains the very tech it runs on</li>
+              <li><span>Directly related to RAG concepts</span></li>
+              <li><span>Explains embeddings and vector databases</span></li>
+              <li><span>Multiple distinct topics — good for semantic segmentation</span></li>
+              <li><span>Ideal for comparing chunk-based vs. moment-based retrieval</span></li>
             </ul>
           </div>
-          <div class="split-image" data-anim="fade-in" data-delay="3" style="display: flex; flex-direction: column; gap: var(--gap-sm)">
-            <div style="flex: 1; background: var(--c-bg-light-alt); border: 1px solid var(--c-border-light); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 28vh; gap: 1.4vh; padding: 2vh;">
-              <span style="font-family: var(--f-display); font-size: 1.9vw; color: var(--c-fg-light); text-align: center; line-height: 1.15;">&#9658;&nbsp; Powering Semantic<br />Search &amp; AI Apps</span>
-              <span style="font-family: var(--f-mono); font-size: var(--sz-caption); color: var(--c-fg-light-3); letter-spacing: 0.08em;">109 cues · ~1,500 tokens</span>
+          <div class="split-image" data-anim="fade-in" data-delay="3" style="display:flex;flex-direction:column;gap:var(--gap-sm)">
+            <div style="flex:1;background:var(--c-bg-alt);border:1px solid var(--c-border);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:30vh;gap:1.4vh;padding:2vh;">
+              <span style="font-family:var(--f-display);font-size:1.9vw;color:var(--c-fg);text-align:center;line-height:1.15;">&#9658;&nbsp; Powering Semantic<br />Search &amp; AI Apps</span>
+              <span style="font-family:var(--f-mono);font-size:var(--sz-caption);color:var(--c-fg-3);letter-spacing:0.08em;">109 cues · ~1,500 tokens</span>
             </div>
-            <p class="img-caption" style="color: var(--c-fg-light-3)">youtube.com/watch?v=gl1r1XV0SLw</p>
+            <p class="img-caption" style="color:var(--c-fg-3)">youtube.com/watch?v=gl1r1XV0SLw</p>
           </div>
         </div>
-        <div class="slide-foot">
-          <span class="label" style="color: var(--c-fg-light-2)">Why this video</span>
-          <span class="label" style="color: var(--c-fg-light-2)">05 / 21</span>
+        <div class="slide-foot"><span class="label muted">Reason for selection</span><span class="label muted">04 / 24</span></div>
+      </section>
+
+      <!-- 5 STATS: dataset -->
+      <section class="slide dark slide--stats">
+        <aside class="notes">Dataset stats from the actual run: 109 transcript cues, about 1,500 tokens. The baseline produced 9 fixed chunks; Moment RAG produced 10 semantic moments and generated 39 hypothetical questions during enrichment.</aside>
+        <div class="slide-chrome"><span class="label muted">Dataset Statistics</span><span class="label muted">05</span></div>
+        <div class="slide-body">
+          <h2 class="h2" data-anim="fade-up" data-delay="1">One short transcript, measured both ways</h2>
+          <div class="stats-grid" data-anim="fade-up" data-delay="2">
+            <div class="stat-card"><div class="stat-value">109</div><div class="stat-label">transcript cues (~1,500 tokens)</div><div class="stat-note">youtube-transcript-api</div></div>
+            <div class="stat-card"><div class="stat-value">9</div><div class="stat-label">fixed chunks — baseline</div><div class="stat-note">~256 tok · 25% overlap</div></div>
+            <div class="stat-card"><div class="stat-value">10</div><div class="stat-label">semantic moments — Moment RAG</div><div class="stat-note">segment_moments()</div></div>
+            <div class="stat-card"><div class="stat-value">39</div><div class="stat-label">hypothetical questions generated</div><div class="stat-note">enrich_moment()</div></div>
+            <div class="stat-card"><div class="stat-value">1536</div><div class="stat-label">embedding dimensions</div><div class="stat-note">text-embedding-3-small</div></div>
+          </div>
         </div>
+        <div class="slide-foot"><span class="label muted">Measured on this corpus</span><span class="label muted">05 / 24</span></div>
       </section>
 
       <!-- 6 CHAPTER 02 -->
       <section class="slide dark slide--chapter">
-        <div class="chapter-num" data-anim="fade-in" data-delay="0">02 · The Reference</div>
+        <aside class="notes">Section two: the baseline semantic search RAG — the conventional pipeline most teams ship first.</aside>
+        <div class="chapter-num" data-anim="fade-in" data-delay="0">02 · Baseline Semantic Search RAG</div>
         <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
-        <h1 class="h1" style="max-width: 66%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">Understanding the <em>Moment RAG</em> codebase.</h1>
-        <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">The course reference puts intelligence on the query side and resolves retrieval to timestamped moments, not just documents.</p>
+        <h1 class="h1" style="max-width: 62%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">The <em>conventional</em> pipeline.</h1>
+        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">Fixed chunks, one embedding lookup, stuff-and-answer.</p>
       </section>
 
-      <!-- 7 DENSE: codebase understanding -->
-      <section class="slide dark slide--dense">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">Codebase · How It Works</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">07</span>
-        </div>
-        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Enrich <em>once</em> at ingestion; think <em>hard</em> at query time.</h2>
-        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
-          <div class="dense-col">
-            <h4>Ingestion (done once, up front)</h4>
-            <p>Transcripts are stored as timed cues; every chunk keeps its <em>start/end timestamp</em> — that is what later makes it a citeable moment.</p>
-            <p>An LLM pre-tags each chunk with the <em>questions it answers</em>, and those are embedded too — a second way to find the chunk later.</p>
-          </div>
-          <div class="dense-col">
-            <h4>Query time (on every question)</h4>
-            <p>The query is <em>decomposed</em> into sub-questions, then retrieved three ways — meaning, keywords, and stored questions — and the rankings are <em>fused</em>.</p>
-            <p>A re-ranker sharpens the shortlist, hits roll up to <em>moments</em>, and each citation deep-links into the video at the exact second.</p>
-          </div>
-        </div>
-        <div class="slide-foot">
-          <span class="label muted">Reference: Moment_RAG/ · Qdrant + fastembed</span>
-          <span class="label muted">07 / 21</span>
-        </div>
-      </section>
-
-      <!-- 8 DENSE: vocabulary -->
-      <section class="slide dark slide--dense">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">The Vocabulary</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">08</span>
-        </div>
-        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Four terms that do the heavy lifting.</h2>
-        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
-          <div class="dense-col">
-            <h4>Finding candidates</h4>
-            <p><em>Dense / embeddings</em> — match on meaning (paraphrase-friendly).</p>
-            <p><em>BM25 (sparse)</em> — classic keyword scoring; nails exact terms like &ldquo;cosine&rdquo; or &ldquo;HNSW.&rdquo;</p>
-            <p><em>HyDE</em> — index the <em>questions a passage answers</em>, so a real question can match a stored question.</p>
-          </div>
-          <div class="dense-col">
-            <h4>Choosing the best</h4>
-            <p><em>RRF (Reciprocal Rank Fusion)</em> — merges several ranked lists into one, so meaning and keywords both get a vote.</p>
-            <p><em>Cross-encoder re-rank</em> — reads the question and a passage <em>together</em> and scores the true match; slower but far more precise than embeddings alone.</p>
-          </div>
-        </div>
-        <div class="slide-foot">
-          <span class="label muted">Glossary</span>
-          <span class="label muted">08 / 21</span>
-        </div>
-      </section>
-
-      <!-- 9 CHAPTER 03 -->
-      <section class="slide dark slide--chapter">
-        <div class="chapter-num" data-anim="fade-in" data-delay="0">03 · Baseline</div>
-        <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
-        <h1 class="h1" style="max-width: 62%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">Baseline: <em>flat</em> semantic search.</h1>
-        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">Fixed chunks, one embedding lookup, stuff-and-answer — the conventional RAG most teams ship first.</p>
-      </section>
-
-      <!-- 10 DIAGRAM: baseline pipeline -->
-      <section class="slide slide--diagram light">
-        <header class="slide-chrome">
-          <span class="label muted">Part 1 · Pipeline</span>
-          <span class="label muted">10</span>
-        </header>
-        <div class="slide-body">
-          <h2 class="h2" data-anim="fade-up" data-delay="0">Chunk &rarr; embed &rarr; index &rarr; <em>answer</em></h2>
-          <div class="flow" data-anim="fade-up" data-delay="1">
-            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Chunk</div><div class="flow-desc">Cut the transcript into fixed ~256-token windows (25% overlap) &rarr; 9 chunks.</div></div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Embed</div><div class="flow-desc">Turn each chunk into a vector with text-embedding-3-small.</div></div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Index</div><div class="flow-desc">Store the vectors — NumPy cosine, or a real DB (ChromaDB / HNSW).</div></div>
-            <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Answer</div><div class="flow-desc">Take the top-k closest chunks, hand them to gpt-4o-mini.</div></div>
-          </div>
-        </div>
-        <footer class="slide-foot">
-          <span class="label muted">baseline_rag()</span>
-          <span class="label muted">10 / 21</span>
-        </footer>
-      </section>
-
-      <!-- 11 DENSE: baseline explained + weakness -->
-      <section class="slide dark slide--dense">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">Part 1 · What Could Go Wrong</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">11</span>
-        </div>
-        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Simple and fast — but it trusts <em>one</em> lookup.</h2>
-        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
-          <div class="dense-col">
-            <h4>Where it struggles</h4>
-            <p>Chunk boundaries fall wherever the token budget runs out — often <em>mid-thought</em>, splitting a explanation in half.</p>
-            <p>A single similarity lookup can grab chunks that are <em>about</em> the topic but don&rsquo;t actually contain the answer.</p>
-          </div>
-          <div class="dense-col">
-            <h4>And it can&rsquo;t cite</h4>
-            <p>Multi-part questions only get one search, so one half tends to win and the other is under-answered.</p>
-            <p>Chunks have no clean topic-aligned timestamp, so answers can&rsquo;t point you to the moment in the video.</p>
-          </div>
-        </div>
-        <div class="slide-foot">
-          <span class="label muted">The gap Moment RAG closes</span>
-          <span class="label muted">11 / 21</span>
-        </div>
-      </section>
-
-      <!-- 12 CHAPTER 04 -->
-      <section class="slide dark slide--chapter">
-        <div class="chapter-num" data-anim="fade-in" data-delay="0">04 · Moment RAG</div>
-        <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
-        <h1 class="h1" style="max-width: 64%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">Moment RAG: think on the <em>query</em> side.</h1>
-        <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">Semantic moments with timestamps, question-indexing, hybrid retrieval, re-ranking, and cited answers.</p>
-      </section>
-
-      <!-- 13 DIAGRAM: moment pipeline -->
+      <!-- 7 DIAGRAM: baseline flow -->
       <section class="slide dark slide--diagram">
-        <header class="slide-chrome">
-          <span class="label muted">Part 2 · Pipeline</span>
-          <span class="label muted">13</span>
-        </header>
+        <aside class="notes">Baseline query flow: transcript becomes fixed chunks, each chunk is embedded, a cosine similarity search returns the top-k closest chunks, and gpt-4o-mini answers from those. One retrieval signal, one pass.</aside>
+        <header class="slide-chrome"><span class="label muted">Baseline · Architecture</span><span class="label muted">07</span></header>
         <div class="slide-body">
-          <h2 class="h2" data-anim="fade-up" data-delay="0">Intelligence moves to the <em>query</em> side</h2>
+          <h2 class="h2" data-anim="fade-up" data-delay="0">Transcript &rarr; chunks &rarr; embeddings &rarr; <em>answer</em></h2>
           <div class="flow" data-anim="fade-up" data-delay="1">
-            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Segment &amp; Enrich</div><div class="flow-desc">Split at topic shifts &rarr; 10 timestamped moments; tag each with the questions it answers (39 Q-vectors).</div></div>
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Fixed Chunks</div><div class="flow-desc">~256-token windows, 25% overlap &rarr; 9 chunks.</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Decompose</div><div class="flow-desc">Break one question into 2–4 focused sub-queries.</div></div>
+            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Embeddings</div><div class="flow-desc">text-embedding-3-small, 1536-dim vectors.</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Hybrid + Rerank</div><div class="flow-desc">Dense + questions + BM25, RRF-fused, then cross-encoder re-rank.</div></div>
+            <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Cosine Search</div><div class="flow-desc">NumPy similarity index &rarr; top-k chunks.</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Cite</div><div class="flow-desc">Roll up to a gpt-4o-mini answer with &amp;t= timestamp deep-links.</div></div>
+            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">GPT Answer</div><div class="flow-desc">gpt-4o-mini answers from retrieved context.</div></div>
           </div>
         </div>
-        <footer class="slide-foot">
-          <span class="label muted">moment_rag()</span>
-          <span class="label muted">13 / 21</span>
-        </footer>
+        <footer class="slide-foot"><span class="label muted">baseline_rag()</span><span class="label muted">07 / 24</span></footer>
       </section>
 
-      <!-- 14 DENSE: moment stages explained -->
+      <!-- 8 DENSE: baseline implementation -->
       <section class="slide dark slide--dense">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">Part 2 · Why Each Step Helps</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">14</span>
-        </div>
-        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Every stage removes a baseline failure mode.</h2>
+        <aside class="notes">Implementation detail. Build side: fetch transcript with youtube-transcript-api, split into ~256-token chunks with 25% overlap, embed with OpenAI text-embedding-3-small at 1536 dimensions. Serve side: store vectors in a NumPy similarity index, retrieve top-k by cosine similarity, and synthesize with gpt-4o-mini.</aside>
+        <div class="slide-chrome"><span class="label muted">Baseline · Implementation</span><span class="label muted">08</span></div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Six lines of plumbing.</h2>
         <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
           <div class="dense-col">
-            <h4>Better units, better recall</h4>
-            <p><em>Moments</em> break at topic shifts, so a cited span is a whole self-contained idea — and carries a real timestamp.</p>
-            <p><em>Decompose</em> means a two-part question gets two searches, covering both halves instead of one.</p>
+            <h4>Build (ingest)</h4>
+            <p>1 · Fetch transcript via <em>youtube-transcript-api</em>.</p>
+            <p>2 · Split into <em>~256-token chunks</em>, 25% overlap.</p>
+            <p>3 · Embed with <em>text-embedding-3-small</em> (1536-dim).</p>
           </div>
           <div class="dense-col">
-            <h4>Better matching, better precision</h4>
-            <p><em>Hybrid + HyDE + RRF</em> blends meaning, exact keywords, and stored questions — so the right moment surfaces even with different wording.</p>
-            <p>The <em>cross-encoder</em> then re-reads each candidate against the question and promotes the true match before the answer is written.</p>
+            <h4>Serve (query)</h4>
+            <p>4 · Store vectors in a <em>NumPy</em> similarity index.</p>
+            <p>5 · Retrieve <em>top-k</em> by cosine similarity.</p>
+            <p>6 · Generate the answer with <em>gpt-4o-mini</em>.</p>
           </div>
         </div>
-        <div class="slide-foot">
-          <span class="label muted">Design rationale</span>
-          <span class="label muted">14 / 21</span>
-        </div>
+        <div class="slide-foot"><span class="label muted">Single retrieval signal</span><span class="label muted">08 / 24</span></div>
       </section>
 
-      <!-- 15 COMPARE: characteristics -->
-      <section class="slide dark slide--compare">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">Baseline · Moment RAG</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">15</span>
+      <!-- 9 DENSE: baseline limitations -->
+      <section class="slide dark slide--dense">
+        <aside class="notes">Baseline limitations: chunk boundaries are arbitrary because they fall on a token budget; a single explanation can be split across two chunks; and there is only one retrieval signal, so a single similarity lookup decides everything. These are exactly the gaps Moment RAG closes.</aside>
+        <div class="slide-chrome"><span class="label muted">Baseline · Limitations</span><span class="label muted">09</span></div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Where it <em>struggles</em>.</h2>
+        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
+          <div class="dense-col">
+            <h4>Arbitrary structure</h4>
+            <p>Chunk boundaries are set by a <em>token budget</em>, not by topic.</p>
+            <p>A single explanation can be <em>split across chunks</em>, so neither half is complete.</p>
+          </div>
+          <div class="dense-col">
+            <h4>One signal</h4>
+            <p>Only <em>dense cosine</em> retrieval — no keywords, no intent, no fusion.</p>
+            <p>One lookup decides everything; multi-part questions get under-answered.</p>
+          </div>
         </div>
+        <div class="slide-foot"><span class="label muted">The gap Moment RAG closes</span><span class="label muted">09 / 24</span></div>
+      </section>
+
+      <!-- 10 CHAPTER 03 -->
+      <section class="slide dark slide--chapter">
+        <aside class="notes">Section three: Moment RAG. The goal is to retrieve semantic moments instead of arbitrary chunks, and to move intelligence onto the query side.</aside>
+        <div class="chapter-num" data-anim="fade-in" data-delay="0">03 · Moment RAG</div>
+        <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
+        <h1 class="h1" style="max-width: 64%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">Retrieve <em>moments</em>, not arbitrary chunks.</h1>
+        <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">Seven stages: segment, enrich, hybrid retrieve, decompose, fuse, re-rank, ground.</p>
+      </section>
+
+      <!-- 11 DIAGRAM: ingestion pipeline -->
+      <section class="slide dark slide--diagram">
+        <aside class="notes">Ingestion pipeline, done once. Transcript cues are grouped into semantic moments; each moment is enriched by GPT with a gist, keywords, and hypothetical questions; then everything is indexed three ways — moment text embeddings, question embeddings, and a BM25 keyword index.</aside>
+        <header class="slide-chrome"><span class="label muted">Moment RAG · Ingestion (once)</span><span class="label muted">11</span></header>
+        <div class="slide-body">
+          <h2 class="h2" data-anim="fade-up" data-delay="0">Build the moment index <em>once</em></h2>
+          <div class="flow" data-anim="fade-up" data-delay="1">
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Cues</div><div class="flow-desc">109 timed transcript cues.</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Segment</div><div class="flow-desc">Group at semantic breakpoints &rarr; 10 moments.</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Enrich</div><div class="flow-desc">GPT: gist, keywords, 39 hypothetical questions.</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Index</div><div class="flow-desc">Text + question embeddings + BM25.</div></div>
+          </div>
+        </div>
+        <footer class="slide-foot"><span class="label muted">segment_moments() · enrich_moment()</span><span class="label muted">11 / 24</span></footer>
+      </section>
+
+      <!-- 12 DIAGRAM: query pipeline -->
+      <section class="slide dark slide--diagram">
+        <aside class="notes">Query pipeline, run on every question. The query is decomposed into sub-queries; each is retrieved through three branches (dense text, dense questions, BM25); the rankings are fused with RRF and re-scored by a cross-encoder; the top moments produce a grounded, cited answer with timestamp deep links.</aside>
+        <header class="slide-chrome"><span class="label muted">Moment RAG · Query (every question)</span><span class="label muted">12</span></header>
+        <div class="slide-body">
+          <h2 class="h2" data-anim="fade-up" data-delay="0">Intelligence on the <em>query</em> side</h2>
+          <div class="flow" data-anim="fade-up" data-delay="1">
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Decompose</div><div class="flow-desc">One question &rarr; 2–4 sub-queries.</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Hybrid Retrieve</div><div class="flow-desc">Dense text + dense questions + BM25.</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Fuse &amp; Rerank</div><div class="flow-desc">RRF fusion, then cross-encoder re-rank.</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Ground</div><div class="flow-desc">Cited answer with timestamp deep-links.</div></div>
+          </div>
+        </div>
+        <footer class="slide-foot"><span class="label muted">moment_rag()</span><span class="label muted">12 / 24</span></footer>
+      </section>
+
+      <!-- 13 SPLIT: step 1 segmentation -->
+      <section class="slide dark slide--split">
+        <aside class="notes">Step 1, semantic segmentation. Method: embed each transcript cue, measure the embedding distance between adjacent cues, and start a new moment whenever that distance exceeds a threshold. Output: 10 semantic moments. Example moment spans 2:43 to 3:24 and covers how unstructured data becomes embeddings.</aside>
+        <div class="slide-chrome"><span class="label muted">Step 1 · Semantic Segmentation</span><span class="label muted">13</span></div>
+        <div class="slide-body">
+          <div class="split-text" data-anim="fade-up" data-delay="1">
+            <div class="kicker">Step 1</div>
+            <h2 class="h2">Segment by <em>meaning</em></h2>
+            <ul class="bullet-list" style="font-size: var(--sz-body)">
+              <li><span>Embed every transcript cue</span></li>
+              <li><span>Measure embedding distance between adjacent cues</span></li>
+              <li><span>New moment when distance exceeds a threshold</span></li>
+              <li><span>Output: <strong style="color:var(--c-accent)">10 semantic moments</strong></span></li>
+            </ul>
+          </div>
+          <div class="split-image" data-anim="fade-in" data-delay="3">
+            <div class="ex-card">
+              <div><div class="ex-k">Moment</div><div class="ex-v accent">2:43 &rarr; 3:24</div></div>
+              <div><div class="ex-k">Topic</div><div class="ex-v">How unstructured data becomes embeddings</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="label muted">segment_moments()</span><span class="label muted">13 / 24</span></div>
+      </section>
+
+      <!-- 14 SPLIT: step 2 enrichment -->
+      <section class="slide dark slide--split">
+        <aside class="notes">Step 2, moment enrichment. For every moment GPT generates a one-sentence gist, a set of keywords, and a few hypothetical questions the moment answers. Purpose: improve recall and query-to-moment matching, because a real user question can now match a stored question.</aside>
+        <div class="slide-chrome"><span class="label muted">Step 2 · Moment Enrichment</span><span class="label muted">14</span></div>
+        <div class="slide-body">
+          <div class="split-text" data-anim="fade-up" data-delay="1">
+            <div class="kicker">Step 2</div>
+            <h2 class="h2">For each moment, GPT writes&hellip;</h2>
+            <ul class="bullet-list" style="font-size: var(--sz-body)">
+              <li><span><em>Gist</em> — one-sentence summary</span></li>
+              <li><span><em>Keywords</em> — important concepts</span></li>
+              <li><span><em>Hypothetical questions</em> — what it answers</span></li>
+            </ul>
+            <p class="body" style="color:var(--c-fg-2)">Purpose: improve recall and query-to-moment matching.</p>
+          </div>
+          <div class="split-image" data-anim="fade-in" data-delay="3">
+            <div class="ex-card">
+              <div><div class="ex-k">Moment text</div><div class="ex-v">&ldquo;An embedding is an array of numbers&hellip;&rdquo;</div></div>
+              <div><div class="ex-k">Generated questions</div>
+                <div class="ex-v">What is an embedding?<br />How are embeddings created?<br />Why are embeddings useful?</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="label muted">enrich_moment()</span><span class="label muted">14 / 24</span></div>
+      </section>
+
+      <!-- 15 LIST: step 3 hybrid retrieval -->
+      <section class="slide dark slide--list">
+        <aside class="notes">Step 3, hybrid retrieval. Three retrieval systems run in parallel: dense text search compares the query embedding to moment text embeddings; dense question search compares it to the generated question embeddings; BM25 does keyword matching. Dense captures meaning, questions capture intent, BM25 captures exact keywords and acronyms.</aside>
+        <div class="slide-chrome"><span class="label muted">Step 3 · Hybrid Retrieval</span><span class="label muted">15</span></div>
+        <div class="slide-body">
+          <div class="list-head" data-anim="fade-up" data-delay="1">
+            <div class="kicker">Step 3</div>
+            <h2 class="h2">Three retrieval signals</h2>
+            <p class="body" style="color:var(--c-fg-2)">Each captures something the others miss.</p>
+          </div>
+          <ul class="bullet-list" data-anim="fade-up" data-delay="2">
+            <li><span><em>Dense text</em> — query vs. moment-text embeddings &rarr; captures <strong style="color:var(--c-accent)">meaning</strong></span></li>
+            <li><span><em>Dense questions</em> — query vs. generated-question embeddings &rarr; captures <strong style="color:var(--c-accent)">intent</strong></span></li>
+            <li><span><em>BM25</em> — keyword matching &rarr; captures <strong style="color:var(--c-accent)">exact terms &amp; acronyms</strong></span></li>
+          </ul>
+        </div>
+        <div class="slide-foot"><span class="label muted">Dense · Question · Sparse</span><span class="label muted">15 / 24</span></div>
+      </section>
+
+      <!-- 16 DENSE: step 4 decomposition -->
+      <section class="slide dark slide--dense">
+        <aside class="notes">Step 4, query decomposition. A multi-part question is broken into focused sub-queries before retrieval. Example: "How does a vector database index embeddings and search them quickly?" becomes "What is a vector database?", "How are embeddings indexed?", and "What techniques make search fast?". Purpose: cover every part of a multi-part question.</aside>
+        <div class="slide-chrome"><span class="label muted">Step 4 · Query Decomposition</span><span class="label muted">16</span></div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Split multi-part questions <em>before</em> retrieval.</h2>
+        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
+          <div class="dense-col">
+            <h4>User query</h4>
+            <p>&ldquo;How does a vector database index embeddings and search them quickly?&rdquo;</p>
+            <p style="color:var(--c-fg-3)">Purpose: cover every facet of a multi-part question instead of just one.</p>
+          </div>
+          <div class="dense-col">
+            <h4>Generated sub-queries</h4>
+            <p>&rarr; What is a vector database?</p>
+            <p>&rarr; How are embeddings indexed?</p>
+            <p>&rarr; What techniques make search fast?</p>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="label muted">decompose()</span><span class="label muted">16 / 24</span></div>
+      </section>
+
+      <!-- 17 DENSE: steps 5 & 6 fusion + rerank -->
+      <section class="slide dark slide--dense">
+        <aside class="notes">Steps 5 and 6. RRF, reciprocal rank fusion, merges the rankings from dense, question, and BM25 retrieval — moments that rank highly across multiple methods get higher final scores. Then a cross-encoder, ms-marco-MiniLM-L-6-v2, re-scores the candidates against the original query. Embedding similarity is fast but approximate; the cross-encoder is slower but more accurate because it reads the query and moment together.</aside>
+        <div class="slide-chrome"><span class="label muted">Steps 5 &amp; 6 · Fuse &amp; Re-rank</span><span class="label muted">17</span></div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Combine the signals, then <em>sharpen</em> them.</h2>
+        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
+          <div class="dense-col">
+            <h4>Step 5 · RRF Fusion</h4>
+            <p>Reciprocal Rank Fusion merges the dense, question, and BM25 rankings into one.</p>
+            <p>Moments that rank highly across <em>multiple methods</em> get the highest final score.</p>
+          </div>
+          <div class="dense-col">
+            <h4>Step 6 · Cross-Encoder Re-rank</h4>
+            <p>Model: <em>cross-encoder/ms-marco-MiniLM-L-6-v2</em>.</p>
+            <p>Re-scores candidates against the original query. Embeddings are fast but approximate; the cross-encoder is <em>slower but more accurate</em>.</p>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="label muted">rrf_fuse() · rerank()</span><span class="label muted">17 / 24</span></div>
+      </section>
+
+      <!-- 18 SPLIT: step 7 grounded answers -->
+      <section class="slide dark slide--split">
+        <aside class="notes">Step 7, grounded answers. The final answer includes the GPT-generated text, timestamp citations, and direct YouTube deep links — for example 7:53 links to watch?v=gl1r1XV0SLw&t=473s. The benefit is that users can verify any claim directly against the source video.</aside>
+        <div class="slide-chrome"><span class="label muted">Step 7 · Grounded Answers</span><span class="label muted">18</span></div>
+        <div class="slide-body">
+          <div class="split-text" data-anim="fade-up" data-delay="1">
+            <div class="kicker">Step 7</div>
+            <h2 class="h2">Answers you can <em>verify</em></h2>
+            <ul class="bullet-list" style="font-size: var(--sz-body)">
+              <li><span>GPT-generated answer</span></li>
+              <li><span>Timestamp citations</span></li>
+              <li><span>Direct YouTube deep links</span></li>
+            </ul>
+            <p class="body" style="color:var(--c-fg-2)">Users verify each claim straight from the source video.</p>
+          </div>
+          <div class="split-image" data-anim="fade-in" data-delay="3">
+            <div class="ex-card">
+              <div><div class="ex-k">Citation</div><div class="ex-v accent">[7:53]</div></div>
+              <div><div class="ex-k">Deep link</div><div class="ex-v" style="word-break:break-all">youtube.com/watch?v=gl1r1XV0SLw&amp;t=473s</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="label muted">Grounded &amp; explainable</span><span class="label muted">18 / 24</span></div>
+      </section>
+
+      <!-- 19 CHAPTER 04 -->
+      <section class="slide dark slide--chapter">
+        <aside class="notes">Section four: results, the comparison, key findings, limitations, and future work.</aside>
+        <div class="chapter-num" data-anim="fade-in" data-delay="0">04 · Results &amp; Comparison</div>
+        <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
+        <h1 class="h1" style="max-width: 62%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">Same transcript. <em>Different</em> answers.</h1>
+        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">The gains come from retrieval design, not a bigger model.</p>
+      </section>
+
+      <!-- 20 COMPARE: results example -->
+      <section class="slide dark slide--compare">
+        <aside class="notes">Results on the query "What is an embedding?". The baseline failed to retrieve the complete explanation and could not define the term. Moment RAG retrieved the correct semantic moment and produced an accurate, cited answer.</aside>
+        <div class="slide-chrome"><span class="label muted">Results · &ldquo;What is an embedding?&rdquo;</span><span class="label muted">20</span></div>
         <div class="slide-body">
           <div class="compare-panel left" data-anim="fade-up" data-delay="1">
-            <div class="compare-label">Baseline semantic search</div>
-            <h3 class="h3">One lookup over arbitrary chunks</h3>
-            <p class="lead" style="color: var(--c-fg-2)">Fast and simple, but only as good as a single similarity match.</p>
-            <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>9 fixed chunks, boundaries set by token budget</li>
-              <li>Single embedding lookup per query</li>
-              <li>No timestamps to cite; can miss the &ldquo;how&rdquo;</li>
+            <div class="compare-label">Baseline — failed</div>
+            <h3 class="h3">Incomplete explanation</h3>
+            <p class="lead" style="color:var(--c-fg-2)">&ldquo;The context does not explicitly define what an embedding is.&rdquo;</p>
+            <ul class="bullet-list" style="font-size: var(--sz-body)"><li><span>Definition split across fixed chunks</span></li></ul>
+          </div>
+          <div class="compare-panel right" data-anim="fade-up" data-delay="2">
+            <div class="compare-label after">Moment RAG — answered</div>
+            <h3 class="h3">Correct, cited answer</h3>
+            <p class="lead" style="color:var(--c-fg-2)">&ldquo;An array of numbers that captures the semantic essence of data — similar items sit close together in vector space.&rdquo;</p>
+            <ul class="bullet-list" style="font-size: var(--sz-body)"><li><span>Retrieved the right moment + timestamp citations</span></li></ul>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="label muted">Same transcript · same models</span><span class="label muted">20 / 24</span></div>
+      </section>
+
+      <!-- 21 COMPARE: comparison table -->
+      <section class="slide dark slide--compare">
+        <aside class="notes">The comparison table. Baseline: fixed chunks, dense retrieval only, single query, cosine ranking. Moment RAG: semantic moments, three retrieval signals, query decomposition, RRF fusion, cross-encoder re-ranking, and timestamp citations.</aside>
+        <div class="slide-chrome"><span class="label muted">Comparison</span><span class="label muted">21</span></div>
+        <div class="slide-body">
+          <div class="compare-panel left" data-anim="fade-up" data-delay="1">
+            <div class="compare-label">Baseline</div>
+            <ul class="bullet-list" style="font-size: var(--sz-lead)">
+              <li><span>Fixed chunks</span></li>
+              <li><span>Dense retrieval only</span></li>
+              <li><span>Single query</span></li>
+              <li><span>Cosine similarity ranking</span></li>
             </ul>
           </div>
           <div class="compare-panel right" data-anim="fade-up" data-delay="2">
             <div class="compare-label after">Moment RAG</div>
-            <h3 class="h3">Decompose, fuse, re-rank, cite</h3>
-            <p class="lead" style="color: var(--c-fg-2)">More moving parts, but retrieval lands on the right moment.</p>
-            <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>10 semantic moments aligned to topic shifts</li>
-              <li>Sub-queries + dense + BM25 + questions, RRF + rerank</li>
-              <li>Every citation deep-links to the exact second</li>
+            <ul class="bullet-list" style="font-size: var(--sz-lead)">
+              <li><span>Semantic moments</span></li>
+              <li><span>Dense + Question + BM25 retrieval</span></li>
+              <li><span>Query decomposition</span></li>
+              <li><span>RRF fusion + cross-encoder re-ranking</span></li>
+              <li><span>Timestamp citations</span></li>
             </ul>
           </div>
         </div>
-        <div class="slide-foot">
-          <span class="label muted">Comparison · by design</span>
-          <span class="label muted">15 / 21</span>
-        </div>
+        <div class="slide-foot"><span class="label muted">Chunk-based vs. moment-based</span><span class="label muted">21 / 24</span></div>
       </section>
 
-      <!-- 16 COMPARE: actual answers -->
-      <section class="slide dark slide--compare">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">Same Question · Real Output</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">16</span>
-        </div>
-        <div class="slide-body">
-          <div class="compare-panel left" data-anim="fade-up" data-delay="1">
-            <div class="compare-label">Baseline — failed</div>
-            <h3 class="h3">&ldquo;What is an embedding?&rdquo;</h3>
-            <p class="lead" style="color: var(--c-fg-2)">&ldquo;The context does not explicitly define what an embedding is.&rdquo;</p>
-            <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>A fixed chunk split the definition away from the cue that names it</li>
-            </ul>
-          </div>
-          <div class="compare-panel right" data-anim="fade-up" data-delay="2">
-            <div class="compare-label after">Moment RAG — answered</div>
-            <h3 class="h3">&ldquo;An array of numbers that captures meaning&rdquo;</h3>
-            <p class="lead" style="color: var(--c-fg-2)">&ldquo;…an array of numbers that captures the semantic essence of data — similar items sit close together in vector space [4].&rdquo;</p>
-            <ul class="bullet-list" style="font-size: var(--sz-body)">
-              <li>6 citations, each a deep-link: 2:43, 3:24, 5:14 …</li>
-            </ul>
-          </div>
-        </div>
-        <div class="slide-foot">
-          <span class="label muted">Same transcript · same models</span>
-          <span class="label muted">16 / 21</span>
-        </div>
-      </section>
-
-      <!-- 17 QUOTE -->
-      <section class="slide dark slide--quote">
-        <div class="quote-mark" data-anim="fade-in" data-delay="0">&ldquo;</div>
-        <p class="quote-text" data-anim="fade-up" data-delay="1">
-          Asked <span class="accent">&ldquo;what is an embedding?&rdquo;</span> the baseline said <span class="accent">&ldquo;the context does not explicitly define&rdquo;</span> it. Moment RAG defined it precisely — with <span class="accent">six timestamped citations.</span>
-        </p>
-        <div class="quote-attr" data-anim="fade-up" data-delay="3">
-          <span class="label accent">The difference is retrieval — not the model</span>
-          <span class="label muted">Both used gpt-4o-mini on the same transcript</span>
-        </div>
-      </section>
-
-      <!-- 18 STATS -->
-      <section class="slide dark slide--stats">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">By the Numbers</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">18</span>
-        </div>
-        <div class="slide-body">
-          <h2 class="h2" data-anim="fade-up" data-delay="1">One short video, measured both ways</h2>
-          <div class="stats-grid" data-anim="fade-up" data-delay="2">
-            <div class="stat-card">
-              <div class="stat-value">10</div>
-              <div class="stat-label">semantic moments vs. 9 fixed chunks from the same transcript</div>
-              <div class="stat-note">segment_moments()</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">39</div>
-              <div class="stat-label">hypothetical-question vectors added as a HyDE retrieval branch</div>
-              <div class="stat-note">enrich_moment()</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">~2&cent;</div>
-              <div class="stat-label">total OpenAI cost for a full top-to-bottom run</div>
-              <div class="stat-note">embeddings + gpt-4o-mini</div>
-            </div>
-          </div>
-        </div>
-        <div class="slide-foot">
-          <span class="label muted">Measured on this corpus</span>
-          <span class="label muted">18 / 21</span>
-        </div>
-      </section>
-
-      <!-- 19 LIST: findings -->
-      <section class="slide light slide--list">
-        <div class="slide-chrome">
-          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">Findings</span>
-          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">19</span>
-        </div>
+      <!-- 22 LIST: key findings -->
+      <section class="slide dark slide--list">
+        <aside class="notes">Key findings. Moment RAG improved recall, multi-part question coverage, overall retrieval quality, grounding, and explainability — all from how retrieval is structured rather than from a larger model.</aside>
+        <div class="slide-chrome"><span class="label muted">Key Findings</span><span class="label muted">22</span></div>
         <div class="slide-body">
           <div class="list-head" data-anim="fade-up" data-delay="1">
             <div class="kicker">Key Findings</div>
-            <h2 class="h2">Why moment-aware retrieval wins</h2>
-            <p class="body" style="color: var(--c-fg-light-2)">Same source, same models — the gains come entirely from how retrieval is structured.</p>
+            <h2 class="h2">Moment RAG improved&hellip;</h2>
+            <p class="body" style="color:var(--c-fg-2)">Same source, same model — better retrieval design.</p>
           </div>
           <ul class="bullet-list" data-anim="fade-up" data-delay="2">
-            <li>Decomposition covers multi-part questions the baseline answers only halfway</li>
-            <li>Question-indexing (HyDE) matches intent even when wording differs from the transcript</li>
-            <li>Hybrid + RRF balances meaning (dense) against exact terms (BM25)</li>
-            <li>Cross-encoder re-rank pushes the truly on-point moment to the top</li>
-            <li>Timestamped citations make every claim verifiable in one click</li>
+            <li><span><em>Recall</em> — finds the relevant moment more reliably</span></li>
+            <li><span><em>Multi-part coverage</em> — decomposition answers every facet</span></li>
+            <li><span><em>Retrieval quality</em> — hybrid + re-rank sharpen results</span></li>
+            <li><span><em>Grounding</em> — timestamp citations into the video</span></li>
+            <li><span><em>Explainability</em> — you can see why each moment was chosen</span></li>
           </ul>
         </div>
-        <div class="slide-foot">
-          <span class="label" style="color: var(--c-fg-light-2)">Findings</span>
-          <span class="label" style="color: var(--c-fg-light-2)">19 / 21</span>
-        </div>
+        <div class="slide-foot"><span class="label muted">Outcome</span><span class="label muted">22 / 24</span></div>
       </section>
 
-      <!-- 20 DENSE: limitations + improvements -->
+      <!-- 23 DENSE: limitations + future -->
       <section class="slide dark slide--dense">
-        <div class="slide-chrome">
-          <span class="label muted" data-anim="fade-in" data-delay="0">Honest Assessment</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">20</span>
-        </div>
-        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">What it <em>doesn&rsquo;t</em> do yet — and where it goes next.</h2>
+        <aside class="notes">Limitations: a small transcript dataset, the cost of GPT enrichment, and added retrieval latency. Future improvements: replace the NumPy search with ChromaDB or Qdrant, use a larger evaluation dataset, add automated metrics like Recall@K, Precision@K, and MRR, and improve semantic segmentation.</aside>
+        <div class="slide-chrome"><span class="label muted">Honest Assessment</span><span class="label muted">23</span></div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Limitations &amp; <em>future work</em>.</h2>
         <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
           <div class="dense-col">
             <h4>Limitations</h4>
-            <p>Higher cost &amp; latency: one LLM enrichment call per moment, plus decomposition and re-rank on every query.</p>
-            <p>The NumPy index is exact but brute-force — fine for one video, not for millions of vectors.</p>
-            <p>Segmentation and answers inherit caption quality and the short explainer&rsquo;s depth.</p>
+            <p>Small transcript dataset.</p>
+            <p>GPT enrichment cost (one call per moment).</p>
+            <p>Additional retrieval latency.</p>
           </div>
           <div class="dense-col">
-            <h4>Improvements</h4>
-            <p>Cache enrichment and persist vectors (ChromaDB / Qdrant) so ingestion runs only once.</p>
-            <p>Add self-query metadata filters and scale to a multi-video corpus.</p>
-            <p>Tune segmentation, top-k, and rerank depth; add an LLM-judge eval to measure quality.</p>
+            <h4>Future improvements</h4>
+            <p>Replace NumPy search with <em>ChromaDB or Qdrant</em>.</p>
+            <p>Larger evaluation dataset + automated metrics: <em>Recall@K, Precision@K, MRR</em>.</p>
+            <p>Better semantic segmentation.</p>
           </div>
         </div>
-        <div class="slide-foot">
-          <span class="label muted">Limitations · Next steps</span>
-          <span class="label muted">20 / 21</span>
-        </div>
+        <div class="slide-foot"><span class="label muted">Next steps</span><span class="label muted">23 / 24</span></div>
       </section>
 
-      <!-- 21 END -->
+      <!-- 24 END -->
       <section class="slide dark slide--end">
+        <aside class="notes">Wrap-up. Moment-aware retrieval, with decomposition, hybrid search, fusion, and re-ranking, beats flat chunk search on the same transcript and model. Thank you. Repo and notebook are linked below.</aside>
         <div class="kicker" data-anim="fade-in" data-delay="0">Module 3 · Agentic RAG</div>
         <div class="rule" data-anim="reveal-right" data-delay="1"></div>
         <h1 class="h1" style="max-width: 62%" data-anim="fade-up" data-delay="2">Better retrieval, <em>not</em> a bigger model.</h1>
-        <p class="lead muted" style="max-width: 50%" data-anim="fade-up" data-delay="3">Calvin Nguyen · github.com/calvnguyen/semantic_search_moment_rag</p>
+        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">Calvin Nguyen · github.com/calvnguyen/semantic_search_moment_rag</p>
       </section>
     </div>
+
+    <div id="notes-panel" class="hidden"></div>
+    <div id="notes-hint">PRESS S FOR SPEAKER NOTES</div>
 
     <script>
       (function () {
@@ -1825,6 +1867,22 @@
         );
 
         init();
+      })();
+    </script>
+      <script>
+      (function () {
+        var panel = document.getElementById('notes-panel');
+        var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+        function cur() { for (var i = 0; i < slides.length; i++) { if (slides[i].classList.contains('is-active')) return i; } return -1; }
+        function render() {
+          var i = cur(); if (i < 0) return;
+          var n = slides[i].querySelector('.notes');
+          panel.innerHTML = '<span style="color:var(--c-accent);font-family:var(--f-mono);font-size:11px;letter-spacing:0.1em">SPEAKER NOTES &middot; ' + (i + 1) + ' / ' + slides.length + '</span><br>' + (n ? n.innerHTML : '—');
+        }
+        var obs = new MutationObserver(render);
+        slides.forEach(function (s) { obs.observe(s, { attributes: true, attributeFilter: ['class'] }); });
+        document.addEventListener('keydown', function (e) { if (e.key === 's' || e.key === 'S') { panel.classList.toggle('hidden'); render(); } });
+        render();
       })();
     </script>
   </body>
