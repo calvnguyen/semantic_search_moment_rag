@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Semantic Search RAG vs. Moment RAG</title>
+    <title>Semantic Search RAG vs. Moment RAG — Module 3</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1254,13 +1254,14 @@
     <div id="slide-counter"></div>
 
     <div id="deck">
+      <!-- 1 COVER -->
       <section class="slide dark slide--cover">
         <div class="cover-body">
           <div class="label muted" data-anim="fade-in" data-delay="0">Module 3 · Agentic RAG · Technical Case Study</div>
           <div class="rule" data-anim="reveal-right" data-delay="1"></div>
           <h1 class="display" data-anim="fade-up" data-delay="2">Semantic Search RAG<br />vs. <em>Moment RAG</em></h1>
           <p class="lead" style="font-family: var(--f-heading); max-width: 58%; color: var(--c-fg-2);" data-anim="fade-up" data-delay="3">
-            Two retrieval pipelines over one YouTube transcript — a flat semantic-search baseline, and a moment-aware system that decomposes, retrieves hybrid, re-ranks, and cites the exact second.
+            Two ways to answer questions about a YouTube video from its transcript — a simple semantic-search baseline, and a moment-aware system that decomposes, retrieves hybrid, re-ranks, and cites the exact second.
           </p>
           <div class="cover-meta" data-anim="fade-in" data-delay="4">
             <span class="label muted">Calvin Nguyen</span>
@@ -1269,29 +1270,64 @@
         </div>
       </section>
 
+      <!-- 2 CHAPTER 00 -->
+      <section class="slide dark slide--chapter">
+        <div class="chapter-num" data-anim="fade-in" data-delay="0">00 · The Problem</div>
+        <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
+        <h1 class="h1" style="max-width: 66%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">An LLM can&rsquo;t answer about a video it has <em>never seen</em>.</h1>
+        <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">RAG (Retrieval-Augmented Generation) fixes that: find the relevant pieces first, then let the model answer using them.</p>
+      </section>
+
+      <!-- 3 DENSE: RAG in plain terms -->
+      <section class="slide dark slide--dense">
+        <div class="slide-chrome">
+          <span class="label muted" data-anim="fade-in" data-delay="0">Background · Plain Terms</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">03</span>
+        </div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">RAG in one slide: <em>retrieve</em>, then <em>generate</em>.</h2>
+        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
+          <div class="dense-col">
+            <h4>The idea</h4>
+            <p>Turn every passage into an <em>embedding</em> — a list of numbers capturing its meaning. Similar meanings sit close together in that number space.</p>
+            <p>To answer a question, embed the question too, find the <em>closest</em> passages, and hand them to the LLM as context. The model answers from those, not from memory.</p>
+          </div>
+          <div class="dense-col">
+            <h4>Why it beats keyword search</h4>
+            <p>Keyword search needs the <em>exact words</em>. &ldquo;Can I wear jeans?&rdquo; would miss a passage titled &ldquo;dress code.&rdquo;</p>
+            <p>Semantic (embedding) search matches on <em>meaning</em>, so the question and the answer connect even with zero shared words. That is the core move in every slide that follows.</p>
+          </div>
+        </div>
+        <div class="slide-foot">
+          <span class="label muted">Retrieval-Augmented Generation</span>
+          <span class="label muted">03 / 21</span>
+        </div>
+      </section>
+
+      <!-- 4 CHAPTER 01 -->
       <section class="slide dark slide--chapter">
         <div class="chapter-num" data-anim="fade-in" data-delay="0">01 · The Source</div>
         <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
         <h1 class="h1" style="max-width: 64%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">The video chosen — and <em>why</em> it fits.</h1>
-        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">A short, dense explainer is a clean knowledge source: many distinct ideas packed into a few minutes, each a natural "moment."</p>
+        <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">A short, dense explainer is a clean knowledge source: many distinct ideas packed into a few minutes, each a natural &ldquo;moment.&rdquo;</p>
       </section>
 
+      <!-- 5 SPLIT: video + why -->
       <section class="slide light slide--split">
         <div class="slide-chrome">
           <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">Source · YouTube</span>
-          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">03</span>
+          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">05</span>
         </div>
         <div class="slide-body">
           <div class="split-text" data-anim="fade-up" data-delay="1">
-            <div class="kicker">The Video</div>
+            <div class="kicker">Why This Video</div>
             <h2 class="h2">&ldquo;How does a Vector Database work?&rdquo;</h2>
             <p class="lead" style="color: var(--c-fg-light-2)">
-              A ~10-minute explainer that walks an employee-handbook search example from SQL to embeddings to vector search.
+              It captures the exact shift this project is about: how vector databases transform traditional keyword-based search into <strong style="color: var(--c-fg-light)">semantic understanding that actually comprehends meaning</strong>, not just matching words.
             </p>
             <ul class="bullet-list" style="font-size: var(--sz-body)">
+              <li>Its arc mirrors baseline &rarr; Moment RAG: SQL keyword lookup vs. meaning-based retrieval</li>
               <li>Topic-dense — embeddings, similarity, indexing, thresholds, chunk overlap — each a distinct moment</li>
-              <li>Clean auto-captions &rarr; 312 timestamped cues, no manual transcription</li>
-              <li>On-topic: the system explains the very technology it runs on</li>
+              <li>Clean auto-captions &rarr; 312 timestamped cues; the system explains the very tech it runs on</li>
             </ul>
           </div>
           <div class="split-image" data-anim="fade-in" data-delay="3" style="display: flex; flex-direction: column; gap: var(--gap-sm)">
@@ -1304,41 +1340,70 @@
         </div>
         <div class="slide-foot">
           <span class="label" style="color: var(--c-fg-light-2)">Why this video</span>
-          <span class="label" style="color: var(--c-fg-light-2)">03 / 15</span>
+          <span class="label" style="color: var(--c-fg-light-2)">05 / 21</span>
         </div>
       </section>
 
+      <!-- 6 CHAPTER 02 -->
       <section class="slide dark slide--chapter">
         <div class="chapter-num" data-anim="fade-in" data-delay="0">02 · The Reference</div>
         <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
         <h1 class="h1" style="max-width: 66%; margin-bottom: var(--gap-md)" data-anim="fade-up" data-delay="2">Understanding the <em>Moment RAG</em> codebase.</h1>
-        <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">The reference puts intelligence on the query side and resolves retrieval to timestamped moments, not just documents.</p>
+        <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">The course reference puts intelligence on the query side and resolves retrieval to timestamped moments, not just documents.</p>
       </section>
 
+      <!-- 7 DENSE: codebase understanding -->
       <section class="slide dark slide--dense">
         <div class="slide-chrome">
           <span class="label muted" data-anim="fade-in" data-delay="0">Codebase · How It Works</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">05</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">07</span>
         </div>
         <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Enrich <em>once</em> at ingestion; think <em>hard</em> at query time.</h2>
         <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
           <div class="dense-col">
-            <h4>Ingestion (once)</h4>
-            <p>Transcripts are timed cues; chunks carry <em>start/end timestamps</em> — that is what makes a chunk a citeable moment.</p>
-            <p>Each chunk is pre-tagged with the <em>hypothetical questions</em> it answers (HyDE-at-ingestion) and embedded as an extra retrieval branch, alongside dense and BM25 sparse vectors.</p>
+            <h4>Ingestion (done once, up front)</h4>
+            <p>Transcripts are stored as timed cues; every chunk keeps its <em>start/end timestamp</em> — that is what later makes it a citeable moment.</p>
+            <p>An LLM pre-tags each chunk with the <em>questions it answers</em>, and those are embedded too — a second way to find the chunk later.</p>
           </div>
           <div class="dense-col">
-            <h4>Query time</h4>
-            <p>Self-query infers filters &rarr; <em>decompose</em> into sub-queries &rarr; hybrid retrieve (dense + BM25 + question vectors), <em>RRF-fused</em>.</p>
-            <p>A <em>cross-encoder re-ranks</em> the shortlist, then chunk hits roll up to moments — each citation deep-links into the video.</p>
+            <h4>Query time (on every question)</h4>
+            <p>The query is <em>decomposed</em> into sub-questions, then retrieved three ways — meaning, keywords, and stored questions — and the rankings are <em>fused</em>.</p>
+            <p>A re-ranker sharpens the shortlist, hits roll up to <em>moments</em>, and each citation deep-links into the video at the exact second.</p>
           </div>
         </div>
         <div class="slide-foot">
           <span class="label muted">Reference: Moment_RAG/ · Qdrant + fastembed</span>
-          <span class="label muted">05 / 15</span>
+          <span class="label muted">07 / 21</span>
         </div>
       </section>
 
+      <!-- 8 DENSE: vocabulary -->
+      <section class="slide dark slide--dense">
+        <div class="slide-chrome">
+          <span class="label muted" data-anim="fade-in" data-delay="0">The Vocabulary</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">08</span>
+        </div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Four terms that do the heavy lifting.</h2>
+        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
+          <div class="dense-col">
+            <h4>Finding candidates</h4>
+            <p><em>Dense / embeddings</em> — match on meaning (paraphrase-friendly).</p>
+            <p><em>BM25 (sparse)</em> — classic keyword scoring; nails exact terms like &ldquo;cosine&rdquo; or &ldquo;HNSW.&rdquo;</p>
+            <p><em>HyDE</em> — index the <em>questions a passage answers</em>, so a real question can match a stored question.</p>
+          </div>
+          <div class="dense-col">
+            <h4>Choosing the best</h4>
+            <p><em>RRF (Reciprocal Rank Fusion)</em> — merges several ranked lists into one, so meaning and keywords both get a vote.</p>
+            <p><em>Cross-encoder re-rank</em> — reads the question and a passage <em>together</em> and scores the true match; slower but far more precise than embeddings alone.</p>
+          </div>
+        </div>
+        <div class="slide-foot">
+          <span class="label muted">Glossary</span>
+          <span class="label muted">08 / 21</span>
+        </div>
+      </section>
+
+      <!-- 9 CHAPTER 03 -->
       <section class="slide dark slide--chapter">
         <div class="chapter-num" data-anim="fade-in" data-delay="0">03 · Baseline</div>
         <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
@@ -1346,29 +1411,56 @@
         <p class="lead muted" style="max-width: 52%" data-anim="fade-up" data-delay="3">Fixed chunks, one embedding lookup, stuff-and-answer — the conventional RAG most teams ship first.</p>
       </section>
 
+      <!-- 10 DIAGRAM: baseline pipeline -->
       <section class="slide slide--diagram light">
         <header class="slide-chrome">
           <span class="label muted">Part 1 · Pipeline</span>
-          <span class="label muted">07</span>
+          <span class="label muted">10</span>
         </header>
         <div class="slide-body">
           <h2 class="h2" data-anim="fade-up" data-delay="0">Chunk &rarr; embed &rarr; index &rarr; <em>answer</em></h2>
           <div class="flow" data-anim="fade-up" data-delay="1">
-            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Chunk</div><div class="flow-desc">Fixed ~256-token windows, 25% overlap &rarr; 13 chunks.</div></div>
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Chunk</div><div class="flow-desc">Cut the transcript into fixed ~256-token windows (25% overlap) &rarr; 13 chunks.</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Embed</div><div class="flow-desc">OpenAI text-embedding-3-small &rarr; a 13 &times; 1536 matrix.</div></div>
+            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Embed</div><div class="flow-desc">Turn each chunk into a vector with text-embedding-3-small.</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Index</div><div class="flow-desc">In-memory NumPy cosine index — or ChromaDB (HNSW).</div></div>
+            <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Index</div><div class="flow-desc">Store the vectors — NumPy cosine, or a real DB (ChromaDB / HNSW).</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Answer</div><div class="flow-desc">Top-k by cosine, stuffed into gpt-4o-mini.</div></div>
+            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Answer</div><div class="flow-desc">Take the top-k closest chunks, hand them to gpt-4o-mini.</div></div>
           </div>
         </div>
         <footer class="slide-foot">
           <span class="label muted">baseline_rag()</span>
-          <span class="label muted">07 / 15</span>
+          <span class="label muted">10 / 21</span>
         </footer>
       </section>
 
+      <!-- 11 DENSE: baseline explained + weakness -->
+      <section class="slide dark slide--dense">
+        <div class="slide-chrome">
+          <span class="label muted" data-anim="fade-in" data-delay="0">Part 1 · What Could Go Wrong</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">11</span>
+        </div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Simple and fast — but it trusts <em>one</em> lookup.</h2>
+        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
+          <div class="dense-col">
+            <h4>Where it struggles</h4>
+            <p>Chunk boundaries fall wherever the token budget runs out — often <em>mid-thought</em>, splitting a explanation in half.</p>
+            <p>A single similarity lookup can grab chunks that are <em>about</em> the topic but don&rsquo;t actually contain the answer.</p>
+          </div>
+          <div class="dense-col">
+            <h4>And it can&rsquo;t cite</h4>
+            <p>Multi-part questions only get one search, so one half tends to win and the other is under-answered.</p>
+            <p>Chunks have no clean topic-aligned timestamp, so answers can&rsquo;t point you to the moment in the video.</p>
+          </div>
+        </div>
+        <div class="slide-foot">
+          <span class="label muted">The gap Moment RAG closes</span>
+          <span class="label muted">11 / 21</span>
+        </div>
+      </section>
+
+      <!-- 12 CHAPTER 04 -->
       <section class="slide dark slide--chapter">
         <div class="chapter-num" data-anim="fade-in" data-delay="0">04 · Moment RAG</div>
         <div class="chapter-rule" data-anim="reveal-right" data-delay="1"></div>
@@ -1376,33 +1468,60 @@
         <p class="lead muted" style="max-width: 54%" data-anim="fade-up" data-delay="3">Semantic moments with timestamps, question-indexing, hybrid retrieval, re-ranking, and cited answers.</p>
       </section>
 
+      <!-- 13 DIAGRAM: moment pipeline -->
       <section class="slide dark slide--diagram">
         <header class="slide-chrome">
           <span class="label muted">Part 2 · Pipeline</span>
-          <span class="label muted">09</span>
+          <span class="label muted">13</span>
         </header>
         <div class="slide-body">
           <h2 class="h2" data-anim="fade-up" data-delay="0">Intelligence moves to the <em>query</em> side</h2>
           <div class="flow" data-anim="fade-up" data-delay="1">
-            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Segment &amp; Enrich</div><div class="flow-desc">Semantic breakpoints &rarr; 25 timestamped moments; each tagged with the questions it answers (99 Q-vectors).</div></div>
+            <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Segment &amp; Enrich</div><div class="flow-desc">Split at topic shifts &rarr; 25 timestamped moments; tag each with the questions it answers (99 Q-vectors).</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Decompose</div><div class="flow-desc">One question &rarr; 2–4 focused sub-queries.</div></div>
+            <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Decompose</div><div class="flow-desc">Break one question into 2–4 focused sub-queries.</div></div>
             <div class="flow-arrow">&rarr;</div>
             <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Hybrid + Rerank</div><div class="flow-desc">Dense + questions + BM25, RRF-fused, then cross-encoder re-rank.</div></div>
             <div class="flow-arrow">&rarr;</div>
-            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Cite</div><div class="flow-desc">Moments roll up to a gpt-4o-mini answer with &amp;t= timestamp deep-links.</div></div>
+            <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Cite</div><div class="flow-desc">Roll up to a gpt-4o-mini answer with &amp;t= timestamp deep-links.</div></div>
           </div>
         </div>
         <footer class="slide-foot">
           <span class="label muted">moment_rag()</span>
-          <span class="label muted">09 / 15</span>
+          <span class="label muted">13 / 21</span>
         </footer>
       </section>
 
+      <!-- 14 DENSE: moment stages explained -->
+      <section class="slide dark slide--dense">
+        <div class="slide-chrome">
+          <span class="label muted" data-anim="fade-in" data-delay="0">Part 2 · Why Each Step Helps</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">14</span>
+        </div>
+        <h2 class="dense-hl" data-anim="fade-up" data-delay="1">Every stage removes a baseline failure mode.</h2>
+        <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
+          <div class="dense-col">
+            <h4>Better units, better recall</h4>
+            <p><em>Moments</em> break at topic shifts, so a cited span is a whole self-contained idea — and carries a real timestamp.</p>
+            <p><em>Decompose</em> means a two-part question gets two searches, covering both halves instead of one.</p>
+          </div>
+          <div class="dense-col">
+            <h4>Better matching, better precision</h4>
+            <p><em>Hybrid + HyDE + RRF</em> blends meaning, exact keywords, and stored questions — so the right moment surfaces even with different wording.</p>
+            <p>The <em>cross-encoder</em> then re-reads each candidate against the question and promotes the true match before the answer is written.</p>
+          </div>
+        </div>
+        <div class="slide-foot">
+          <span class="label muted">Design rationale</span>
+          <span class="label muted">14 / 21</span>
+        </div>
+      </section>
+
+      <!-- 15 COMPARE: characteristics -->
       <section class="slide dark slide--compare">
         <div class="slide-chrome">
           <span class="label muted" data-anim="fade-in" data-delay="0">Baseline · Moment RAG</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">10</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">15</span>
         </div>
         <div class="slide-body">
           <div class="compare-panel left" data-anim="fade-up" data-delay="1">
@@ -1412,7 +1531,7 @@
             <ul class="bullet-list" style="font-size: var(--sz-body)">
               <li>13 fixed chunks, boundaries set by token budget</li>
               <li>Single embedding lookup per query</li>
-              <li>No timestamps to cite; can miss the "how"</li>
+              <li>No timestamps to cite; can miss the &ldquo;how&rdquo;</li>
             </ul>
           </div>
           <div class="compare-panel right" data-anim="fade-up" data-delay="2">
@@ -1427,26 +1546,58 @@
           </div>
         </div>
         <div class="slide-foot">
-          <span class="label muted">Comparison</span>
-          <span class="label muted">10 / 15</span>
+          <span class="label muted">Comparison · by design</span>
+          <span class="label muted">15 / 21</span>
         </div>
       </section>
 
+      <!-- 16 COMPARE: actual answers -->
+      <section class="slide dark slide--compare">
+        <div class="slide-chrome">
+          <span class="label muted" data-anim="fade-in" data-delay="0">Same Question · Real Output</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">16</span>
+        </div>
+        <div class="slide-body">
+          <div class="compare-panel left" data-anim="fade-up" data-delay="1">
+            <div class="compare-label">Baseline — failed</div>
+            <h3 class="h3">&ldquo;How does a vector database find similar vectors?&rdquo;</h3>
+            <p class="lead" style="color: var(--c-fg-2)">&ldquo;The context does not provide a specific answer to how a vector database finds similar vectors.&rdquo;</p>
+            <ul class="bullet-list" style="font-size: var(--sz-body)">
+              <li>Retrieved chunks about vector DBs — but not the actual mechanism</li>
+            </ul>
+          </div>
+          <div class="compare-panel right" data-anim="fade-up" data-delay="2">
+            <div class="compare-label after">Moment RAG — answered</div>
+            <h3 class="h3">Cosine similarity, thresholds, chunk overlap</h3>
+            <p class="lead" style="color: var(--c-fg-2)">&ldquo;…uses techniques such as cosine similarity for semantic search… scoring thresholds decide how similar a match must be… [1][3]&rdquo;</p>
+            <ul class="bullet-list" style="font-size: var(--sz-body)">
+              <li>6 citations, each a deep-link: 4:59, 8:10, 4:08, 1:04 …</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-foot">
+          <span class="label muted">Same transcript · same models</span>
+          <span class="label muted">16 / 21</span>
+        </div>
+      </section>
+
+      <!-- 17 QUOTE -->
       <section class="slide dark slide--quote">
         <div class="quote-mark" data-anim="fade-in" data-delay="0">&ldquo;</div>
         <p class="quote-text" data-anim="fade-up" data-delay="1">
-          On <span class="accent">&ldquo;how does a vector database find similar vectors?&rdquo;</span> the baseline returned <span class="accent">&ldquo;the context does not provide an answer.&rdquo;</span> Moment RAG answered it — with six timestamped citations.
+          The baseline said <span class="accent">&ldquo;the context does not provide an answer.&rdquo;</span> Moment RAG answered the same question — with <span class="accent">six timestamped citations.</span>
         </p>
         <div class="quote-attr" data-anim="fade-up" data-delay="3">
-          <span class="label accent">Same transcript · Same models</span>
-          <span class="label muted">The difference is retrieval</span>
+          <span class="label accent">The difference is retrieval — not the model</span>
+          <span class="label muted">Both used gpt-4o-mini on the same transcript</span>
         </div>
       </section>
 
+      <!-- 18 STATS -->
       <section class="slide dark slide--stats">
         <div class="slide-chrome">
           <span class="label muted" data-anim="fade-in" data-delay="0">By the Numbers</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">12</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">18</span>
         </div>
         <div class="slide-body">
           <h2 class="h2" data-anim="fade-up" data-delay="1">One short video, measured both ways</h2>
@@ -1470,14 +1621,15 @@
         </div>
         <div class="slide-foot">
           <span class="label muted">Measured on this corpus</span>
-          <span class="label muted">12 / 15</span>
+          <span class="label muted">18 / 21</span>
         </div>
       </section>
 
+      <!-- 19 LIST: findings -->
       <section class="slide light slide--list">
         <div class="slide-chrome">
           <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">Findings</span>
-          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">13</span>
+          <span class="label" style="color: var(--c-fg-light-2)" data-anim="fade-in" data-delay="0">19</span>
         </div>
         <div class="slide-body">
           <div class="list-head" data-anim="fade-up" data-delay="1">
@@ -1495,14 +1647,15 @@
         </div>
         <div class="slide-foot">
           <span class="label" style="color: var(--c-fg-light-2)">Findings</span>
-          <span class="label" style="color: var(--c-fg-light-2)">13 / 15</span>
+          <span class="label" style="color: var(--c-fg-light-2)">19 / 21</span>
         </div>
       </section>
 
+      <!-- 20 DENSE: limitations + improvements -->
       <section class="slide dark slide--dense">
         <div class="slide-chrome">
           <span class="label muted" data-anim="fade-in" data-delay="0">Honest Assessment</span>
-          <span class="label muted" data-anim="fade-in" data-delay="0">14</span>
+          <span class="label muted" data-anim="fade-in" data-delay="0">20</span>
         </div>
         <h2 class="dense-hl" data-anim="fade-up" data-delay="1">What it <em>doesn&rsquo;t</em> do yet — and where it goes next.</h2>
         <div class="dense-cols slide-body" data-anim="fade-up" data-delay="2">
@@ -1521,10 +1674,11 @@
         </div>
         <div class="slide-foot">
           <span class="label muted">Limitations · Next steps</span>
-          <span class="label muted">14 / 15</span>
+          <span class="label muted">20 / 21</span>
         </div>
       </section>
 
+      <!-- 21 END -->
       <section class="slide dark slide--end">
         <div class="kicker" data-anim="fade-in" data-delay="0">Module 3 · Agentic RAG</div>
         <div class="rule" data-anim="reveal-right" data-delay="1"></div>
