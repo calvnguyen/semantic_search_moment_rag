@@ -18,14 +18,15 @@ press **S** for speaker notes).
   (dense text + dense questions + BM25, **RRF-fused**) → **cross-encoder re-rank** → moment rollup
   with **click-to-timestamp citations**.
 - **Part 3 — Comparison & analysis.**
-- **Appendix — ChromaDB:** the same baseline backed by a real vector database (HNSW index).
+- **Appendix — Qdrant:** a real **server-side hybrid** (dense + BM25 sparse, RRF-fused *inside the database*).
 
 **Source video:** *What is a Vector Database? Powering Semantic Search & AI Applications* — https://www.youtube.com/watch?v=gl1r1XV0SLw
 
 The Moment RAG design mirrors the course's `Moment_RAG/` reference codebase (query-side intelligence,
-HyDE-at-ingestion, RRF fusion, cross-encoder rerank, moment rollup) on a lighter, **fully transparent
-stack** (NumPy + `rank-bm25` + a small cross-encoder) instead of Qdrant/fastembed — so every retrieval
-step is readable in the notebook.
+HyDE-at-ingestion, RRF fusion, cross-encoder rerank, moment rollup). The core pipelines run on a
+lighter, **fully transparent stack** (NumPy + `rank-bm25` + a small cross-encoder) so every retrieval
+step is readable — and the appendix reproduces the hybrid on the reference's own stack
+(**Qdrant + fastembed**).
 
 ---
 
@@ -43,7 +44,7 @@ fixed ~256-token chunks                   semantic moments  (start_ms/end_ms)
    │                                         │  + enrich: hypothetical questions, gist, keywords
 embed (OpenAI)                            embed text  +  embed questions (HyDE)  +  BM25
    │                                         │
-cosine top-k  ── NumPy / ChromaDB         decompose query → dense + dense-Q + BM25 → RRF fuse
+cosine top-k  ── NumPy (exact)            decompose query → dense + dense-Q + BM25 → RRF fuse
    │                                         │
                                           cross-encoder re-rank
    │                                         │
@@ -61,8 +62,8 @@ gpt-4o-mini answer                        gpt-4o-mini cited answer  +  &t= times
 | Obtain the transcript from a YouTube video | `youtube-transcript-api` → 109 timed cues, cached to `data/transcript.json` | `fetch_transcript()` |
 | Split into chunks | ~256-token windows, 25% overlap | `fixed_chunks()` |
 | Generate embeddings | OpenAI `text-embedding-3-small` → `(9, 1536)` matrix | `embed_texts()` |
-| Store in a vector DB / similarity index | In-memory NumPy cosine index **and** a real **ChromaDB** collection (Appendix) | `cosine_topk()`, `collection.add/query` |
-| Accept queries, retrieve relevant chunks | top-k cosine retrieval | `baseline_rag()`, `baseline_rag_chroma()` |
+| Store in a vector DB / similarity index | In-memory NumPy cosine index (the Appendix adds a real **Qdrant** hybrid) | `cosine_topk()`; Qdrant in Appendix |
+| Accept queries, retrieve relevant chunks | top-k cosine retrieval | `baseline_rag()` |
 | Generate an answer from context | context-grounded `gpt-4o-mini` synthesis | `baseline_rag()` |
 
 **Part 2 — Moment RAG**
@@ -88,54 +89,52 @@ shows the same effect: the baseline answers one facet, Moment RAG covers both.
 
 ---
 
-## Vector storage — NumPy index vs. ChromaDB
+## Vector storage — NumPy (default) vs. Qdrant (server-side hybrid)
 
-The pipelines retrieve from an in-memory **NumPy** matrix (an exact brute-force cosine index). The
-notebook's **appendix** additionally stores the same Part 1 embeddings in **ChromaDB** — a real
-vector database — and serves retrieval from it via `baseline_rag_chroma()`, proving the pipeline
-works against a production-style store, not just an in-process array.
+The core pipelines retrieve from in-memory **NumPy** + `rank-bm25`, so every step is readable — the
+cosine math (`M @ q`) and the RRF fusion are right there in the notebook. The **appendix** then
+reproduces Moment RAG's hybrid on **Qdrant**, a real vector database run **in-memory**
+(`QdrantClient(":memory:")` — no server, works on Colab), which does the one thing an in-process
+array can't: **dense + BM25-sparse retrieval with RRF fusion _inside the database_**.
 
-### How ChromaDB is used
+### How Qdrant is used
 
 ```python
-import chromadb
+from qdrant_client import QdrantClient, models
+from fastembed import SparseTextEmbedding
 
-chroma = chromadb.EphemeralClient()                       # in-memory; PersistentClient(path="data/chroma") to persist
-try: chroma.delete_collection("baseline_chunks")          # idempotent on re-run
-except Exception: pass
-collection = chroma.create_collection(
-    "baseline_chunks", metadata={"hnsw:space": "cosine"},  # cosine-distance HNSW index
+bm25 = SparseTextEmbedding("Qdrant/bm25")
+qc = QdrantClient(":memory:")                              # in-process; path="data/qdrant" to persist
+qc.create_collection(
+    "moments_hybrid",
+    vectors_config={"text": models.VectorParams(size=1536, distance=models.Distance.COSINE)},
+    sparse_vectors_config={"bm25": models.SparseVectorParams(modifier=models.Modifier.IDF)},
 )
+qc.upsert("moments_hybrid", points=[...])                 # reuse Part 2 moment_vecs + BM25 sparse
 
-collection.add(                                            # reuse Part 1 embeddings -> no extra API cost
-    ids=[c["chunk_id"] for c in base_chunks],
-    embeddings=base_matrix.tolist(),
-    documents=[c["text"] for c in base_chunks],
-    metadatas=[{"start_ms": c["start_ms"], "start": fmt_ts(c["start_ms"])} for c in base_chunks],
+res = qc.query_points(                                     # dense + sparse, fused server-side
+    "moments_hybrid",
+    prefetch=[
+        models.Prefetch(query=dense_q,  using="text", limit=8),
+        models.Prefetch(query=sparse_q, using="bm25", limit=8),
+    ],
+    query=models.FusionQuery(fusion=models.Fusion.RRF),   # <- RRF happens in the DB
+    limit=8,
 )
-
-res = collection.query(query_embeddings=[qv], n_results=4) # ANN retrieval -> documents + distances
 ```
 
-### Why ChromaDB (and why NumPy stays the default)
+### Why NumPy is the default — and why Qdrant for the hybrid
 
-- **Covers both options of the brief.** The task says store embeddings in a *vector database **or**
-  similarity index*. NumPy satisfies the similarity-index option; ChromaDB satisfies the
-  vector-database option literally — so the project demonstrates both.
-- **What a vector DB adds.** An **HNSW** approximate-nearest-neighbor index (sub-linear search vs.
-  NumPy scanning every vector), on-disk **persistence**, metadata storage, and filtering — the things
-  that matter once you outgrow one short transcript.
-- **Why ChromaDB specifically.** Zero-config, pure-`pip` install, runs **embedded in-process** (no
-  server to stand up), and a tiny `add`/`query` API — the lightest real vector DB to show the concept
-  in a notebook. Swapping in Qdrant or Pinecone is the same shape.
-- **Why NumPy is still the default.** On a 9–39 vector corpus, brute-force cosine is *exact*, instant,
-  and fully transparent. ChromaDB returns the **same top result** here — distance `0.268` ↔ cosine
-  `0.732`, matching the NumPy score — so it validates the baseline rather than changing it.
-- **No extra cost.** Indexing reuses the embeddings already in `base_matrix`; only the query embedding
-  is computed at search time.
-
-> Chroma reports a **distance** (`cosine distance = 1 − cosine similarity`), so *lower = closer* —
-> compare it to the cosine *scores* the NumPy baseline prints.
+- **Transparency first.** On a 9–39 vector corpus, NumPy brute-force cosine is *exact*, instant, and
+  fully readable. That clarity is the point of the core notebook.
+- **Qdrant earns its place by doing real hybrid.** It stores dense + sparse vectors together and fuses
+  them with RRF **server-side** — the architecture the course's `Moment_RAG/` reference uses, and what
+  you'd actually run at scale (plus persistence, metadata filters, millions of vectors).
+- **Still Colab-friendly.** `QdrantClient(":memory:")` runs in-process — no server to deploy.
+- **What stays in Python.** Query **decomposition** (LLM) and the **cross-encoder re-rank** — Qdrant
+  stores and fuses; it doesn't decompose or cross-encode.
+- **No extra embedding cost.** The Qdrant index reuses the Part 2 `moment_vecs`; only the BM25 sparse
+  vectors are added (computed locally by `fastembed`).
 
 ---
 
@@ -169,7 +168,7 @@ requires a one-time **$5 minimum** account top-up to enable the API.
 
 | Path | Purpose |
 |---|---|
-| `moment_rag.ipynb` | The project — Parts 1–3 + ChromaDB appendix (run with outputs) |
+| `moment_rag.ipynb` | The project — Parts 1–3 + Qdrant hybrid appendix (run with outputs) |
 | `presentation.html` / `presentation.pdf` | 25-slide deck explaining the build & comparison (dark theme, speaker notes) |
 | `data/transcript.json` | Cached transcript, committed so the Colab demo runs without a live YouTube fetch |
 | `requirements.txt` | Pinned dependencies |
@@ -184,8 +183,8 @@ notebook reuses it (or fetches live if it's absent).
 
 ## Design notes
 
-- **NumPy vs. a vector database.** See *[Vector storage — NumPy index vs. ChromaDB](#vector-storage--numpy-index-vs-chromadb)*
-  above: brute-force cosine for transparency on a tiny corpus, with ChromaDB (HNSW) as the production path.
+- **NumPy vs. a vector database.** See *[Vector storage — NumPy vs. Qdrant](#vector-storage--numpy-default-vs-qdrant-server-side-hybrid)*
+  above: brute-force cosine for transparency on a tiny corpus, with Qdrant (server-side dense+BM25 RRF) as the production path.
 - **HyDE lives at ingestion.** Each moment is pre-tagged with the questions it answers, embedded as a
   separate retrieval branch — so a user's question can match a stored *question*, keeping query-time
   latency low. This mirrors the reference codebase.
